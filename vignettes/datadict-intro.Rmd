@@ -1,0 +1,68 @@
+---
+title: "Introduction to datadict"
+output: rmarkdown::html_vignette
+description: >
+  This document introduces you to the package's 'generate_dict' function and shows you how to apply it to a data frame.
+vignette: >
+  %\VignetteIndexEntry{Introduction to datadict}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+Welcome to the `datadict` package. This package allows users to create a data dictionary from a data frame. If you notice a bug or have trouble using a function, please contact [Ama Nyame-Mensah](mailto:ama@anyamemensah.com), the package's maintainer.
+
+To begin, load `datadict`
+
+```{r setup}
+library(datadict)
+```
+
+The `datadict` package currently includes a single function, `generate_dict()`. This function creates a data dictionary based on a data frame. The resulting data dictionary contains column indices (which help identify groups of variables with multiple values or labels), variable names, question labels (if available), variable values, value labels, and the frequencies of both non-missing and missing values or labels.
+
+## Generating a data dictionary
+
+To create a data dictionary, provide the name of your data frame to the `data` argument of the `generate_dict()` function. The output will be a tibble containing summary details for every column in the specified data frame.
+
+``` {r}
+generate_dict(data = gss)
+```
+
+To specify which columns to include in the dictionary, provide the names of the variables you want using the `cols` argument:
+
+``` {r}
+generate_dict(data = gss, cols = c("age", "sexnow1", "hispanic", "race", "martial"))
+```
+
+With `generate_dict()`, you can use the `max_display_values` argument to set how many unique values or labels are shown for each numeric variable. This is particularly helpful when numeric variables have only a few different values, as it lets you display all values or labels rather than summarizing them in a range:
+
+``` {r}
+set.seed(0721)
+sample_data <- data.frame(
+  id = sample(1:100, size = 100, replace = FALSE),
+  gender = sample(c("woman", "man", "non-binary"), size = 100, replace = TRUE),
+  birth_order = sample(1:10, size = 100, replace = TRUE)
+)
+
+generate_dict(data = sample_data, max_display_values = 5)
+generate_dict(data = sample_data, max_display_values = 10)
+```
+
+You can also use the `q_label_width` argument to control the number of characters from a question (or variable) label that should appear in the dictionary for each entry. By default, up to 100 characters are shown.
+
+``` {r}
+generate_dict(data = gss) |>
+  dplyr::select(column_index, question_label) |>
+  dplyr::distinct()
+
+generate_dict(data = gss, q_label_width = 15) |>
+  dplyr::select(column_index, question_label) |>
+  dplyr::distinct()
+```
+

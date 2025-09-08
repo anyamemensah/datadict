@@ -1,0 +1,30 @@
+Package: datadict
+Type: Package
+Title: Package For Generating a Data Dictionary
+Version: 0.1.0
+Authors@R: c(
+    person(
+      "Ama", "Nyame-Mensah",
+      email = "ama@anyamemensah.com",
+      role = c("aut", "cre")
+    )
+  )
+Description: A simple package for generating a data dictionary.
+License: file LICENSE
+Encoding: UTF-8
+LazyData: true
+RoxygenNote: 7.3.3
+Imports: 
+    dplyr,
+    haven,
+    labelled,
+    tibble,
+    withr
+Suggests: 
+    knitr,
+    rmarkdown,
+    testthat (>= 3.0.0),
+VignetteBuilder: knitr
+Config/testthat/edition: 3
+Depends: 
+    R (>= 3.5)
