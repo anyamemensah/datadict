@@ -9,7 +9,7 @@ remotes::install_github("anyamemensah/datadict", build_vignettes = TRUE)
 To learn more about the package, see the package's vignettes.
 
 ```r
-vignette("datadict-intro", "datatdict")
+vignette("datadict-intro", "datadict")
 ```
 
 If you notice a bug or have trouble using a function, please contact [Ama Nyame-Mensah](mailto:ama@anyamemensah.com), the package's maintainer.
