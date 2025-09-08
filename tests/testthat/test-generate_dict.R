@@ -19,13 +19,21 @@ test_that("Invalid 'data' argument", {
 })
 
 
-test_that("All empty columns", {
+test_that("All empty columns and columns not found", {
 
   test_dict_data1 <- 
     data.frame(
       a = rep("", times = 50),
       b = rep(NA, times = 50)
       )
+  
+  expect_error(
+    generate_dict(
+      data = test_dict_data1,
+      cols = c("c", "D")
+    ),
+    "No variable names matching those provided were found in 'data'."
+  )
   
   expect_error(
     generate_dict(

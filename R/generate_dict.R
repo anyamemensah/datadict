@@ -54,9 +54,7 @@ generate_dict <- function(data,
     cols_to_select <- .select_cols(data = data, cols_to_select = cols)
     
     if (!length(cols_to_select) || is.null(cols_to_select)) {
-      warning(paste0("No variable names matching those provided were found in 'data'."),
-              noBreaks. = TRUE)
-      return(NULL)
+      stop("No variable names matching those provided were found in 'data'.")
     }
     
     # Check if any 'cols' are empty; if yes, return remove from 'cols_to_select' 
@@ -64,7 +62,7 @@ generate_dict <- function(data,
     empty_cols <- .return_empty_cols(data = data[cols_to_select])
     
     if (length(empty_cols) > 0) {
-      cols_removed <- paste0("The following variables in 'data' were removed as they are empty: ",
+      cols_removed <- paste0("The following variables in 'data' were excluded from the dictionary because they are empty: ",
                              .join_text(text = names(empty_cols)))
       
       cols_to_select <- cols_to_select[-empty_cols]
@@ -181,6 +179,9 @@ generate_dict <- function(data,
     
     data_dictionary <- dplyr::bind_rows(lapply(row_list, tibble::as_tibble))
     
+    if (length(empty_cols) > 0) {
+      message(cols_removed)
+    }
     data_dictionary
   }
   )}
