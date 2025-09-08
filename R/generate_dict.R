@@ -73,7 +73,6 @@ generate_dict <- function(data,
     }
     
     # Create a dictionary 'entry' for each variable in 'cols_to_select'
-    # data_dictionary <- tibble::tibble()
     row_list <- list()      
     row_num <- 1
     
