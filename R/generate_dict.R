@@ -1,14 +1,14 @@
 #' Generate a data dictionary from a data frame.
 #'
 #' @description `generate_dict()` generates a data dictionary from a data frame. The data
-#' dictionary includes contains column indices (which help identify groups of variables with 
-#' multiple values or labels), variable names, question labels (if available), variable values, 
+#' dictionary includes contains column indices (which help identify groups of variables with
+#' multiple values or labels), variable names, question labels (if available), variable values,
 #' value labels, and the frequencies of both non-missing and missing values or labels. NOTE:
 #' "tagged" missing values will appear with `na_` prefix under the `value_labels` column.
 #'
 #' @param data A data frame.
 #' @param cols A character string, or vector of character strings, of the variable names
-#' in `data` to include in the data_dictionary. Default is `NULL` and all variables will be 
+#' in `data` to include in the data_dictionary. Default is `NULL` and all variables will be
 #' included in the dictionary.
 #' @param max_display_values An integer that determines how many unique values or labels in a
 #' numeric vector are displayed before summarizing them as a range. This setting is especially
@@ -20,9 +20,9 @@
 #'
 #' @returns A tibble summarizing the contents of the data frame is displayed. The resulting
 #' columns include column index (column_index; location of the variable within the dataset),
-#' variable names (variable_name) as they appear in the data frame, question labels 
-#' (question_label), distinct variable values (variable_values), corresponding value labels 
-#' (value_labels), frequencies (n_size; the number of times each unique value/label appears), 
+#' variable names (variable_name) as they appear in the data frame, question labels
+#' (question_label), distinct variable values (variable_values), corresponding value labels
+#' (value_labels), frequencies (n_size; the number of times each unique value/label appears),
 #' and a flag (is_range) indicating whether the data for each variable is shown as a range.
 #'
 #' @examples
@@ -50,20 +50,23 @@ generate_dict <- function(data,
       stop("The 'data' argument is empty.")
     }
     
-    # Find 'cols' to include in the data dictionary; return NULL if none are found
+    # Find 'cols' to include in the data dictionary; stop if none are found
     cols_to_select <- .select_cols(data = data, cols_to_select = cols)
     
     if (!length(cols_to_select) || is.null(cols_to_select)) {
       stop("No variable names matching those provided were found in 'data'.")
     }
     
-    # Check if any 'cols' are empty; if yes, return remove from 'cols_to_select' 
+    # Check if any 'cols' are empty; if yes, return remove from 'cols_to_select'
     # and create an object to hold the names of the variables that were removed
+    # to print with to screen as a message with the dictionary
     empty_cols <- .return_empty_cols(data = data[cols_to_select])
     
     if (length(empty_cols) > 0) {
-      cols_removed <- paste0("The following variables in 'data' were excluded from the dictionary because they are empty: ",
-                             .join_text(text = names(empty_cols)))
+      cols_removed <- paste0(
+        "The following variables in 'data' were excluded from the dictionary because they are empty: ",
+        .join_text(text = names(empty_cols))
+      )
       
       cols_to_select <- cols_to_select[-empty_cols]
     }
@@ -73,11 +76,10 @@ generate_dict <- function(data,
     }
     
     # Create a dictionary 'entry' for each variable in 'cols_to_select'
-    row_list <- list()      
+    row_list <- list()
     row_num <- 1
     
     for (num in seq_along(cols_to_select)) {
-      
       # Setup
       x <- data[[cols_to_select[num]]]
       x_na <- is.na(x)
@@ -87,15 +89,17 @@ generate_dict <- function(data,
       
       # If labelled
       if (!is.null(value_labels)) {
-        
         # find na values (both labelled and tagged)
         na_labels <- labelled::get_na_values(x)
-        na_vals_x <- if (is.double(x)) haven::na_tag(x) else NULL
+        na_vals_x <- if (is.double(x))
+          haven::na_tag(x)
+        else
+          NULL
         na_values <- na.omit(na_vals_x)
         
         # affix a prefix (na_) to 'tagged' values
         if (length(na_labels) > 0 || length(na_values) > 0) {
-          value_labels[paste0("na_", c(na_labels,na_values))] <-
+          value_labels[paste0("na_", c(na_labels, na_values))] <-
             as.character(c(na_labels, na_values))
           
           x <- dplyr::coalesce(as.character(x), na_vals_x)
@@ -106,17 +110,17 @@ generate_dict <- function(data,
       x <- x[!(x_na)]
       unique_values <- unique(x)
       
-      # If not numeric or factor coerce to factor
+      # If not numeric or factor, coerce to factor
       if (!is.numeric(x) && !is.factor(x)) {
         x <- as.factor(x)
       }
       
       # Check for unique values and value labels
       if (!is.null(value_labels) && length(value_labels) > 0) {
-        
         if (!all(unique_values %in% unname(value_labels))) {
           vals_to_add <- unique_values[!unique_values %in% value_labels]
-          value_labels <- c(value_labels, stats::setNames(vals_to_add, vals_to_add))
+          value_labels <- c(value_labels,
+                            stats::setNames(vals_to_add, vals_to_add))
         }
         
         if (!all(unname(value_labels) %in% unique_values)) {
@@ -152,6 +156,7 @@ generate_dict <- function(data,
           n_size <- tabulate(as.factor(x))
         }
       }
+      
       # Finalize the entry
       row_list[[row_num]] <- list(
         column_index = num,
@@ -176,12 +181,14 @@ generate_dict <- function(data,
       row_num <- row_num + 1
     }
     
+    # Bind into a dictionary (tibble)
     data_dictionary <- dplyr::bind_rows(lapply(row_list, tibble::as_tibble))
     
     if (length(empty_cols) > 0) {
       message(cols_removed)
     }
+    
     data_dictionary
-  }
-  )}
-
+    
+  })
+}

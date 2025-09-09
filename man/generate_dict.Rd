@@ -10,7 +10,7 @@ generate_dict(data, cols = NULL, max_display_values = 10, q_label_width = 100)
 \item{data}{A data frame.}
 
 \item{cols}{A character string, or vector of character strings, of the variable names
-in `data` to include in the data_dictionary. Default is `NULL` and all variables will be 
+in `data` to include in the data_dictionary. Default is `NULL` and all variables will be
 included in the dictionary.}
 
 \item{max_display_values}{An integer that determines how many unique values or labels in a
@@ -25,15 +25,15 @@ characters of the label will be shown.}
 \value{
 A tibble summarizing the contents of the data frame is displayed. The resulting
 columns include column index (column_index; location of the variable within the dataset),
-variable names (variable_name) as they appear in the data frame, question labels 
-(question_label), distinct variable values (variable_values), corresponding value labels 
-(value_labels), frequencies (n_size; the number of times each unique value/label appears), 
+variable names (variable_name) as they appear in the data frame, question labels
+(question_label), distinct variable values (variable_values), corresponding value labels
+(value_labels), frequencies (n_size; the number of times each unique value/label appears),
 and a flag (is_range) indicating whether the data for each variable is shown as a range.
 }
 \description{
 `generate_dict()` generates a data dictionary from a data frame. The data
-dictionary includes contains column indices (which help identify groups of variables with 
-multiple values or labels), variable names, question labels (if available), variable values, 
+dictionary includes contains column indices (which help identify groups of variables with
+multiple values or labels), variable names, question labels (if available), variable values,
 value labels, and the frequencies of both non-missing and missing values or labels. NOTE:
 "tagged" missing values will appear with `na_` prefix under the `value_labels` column.
 }
