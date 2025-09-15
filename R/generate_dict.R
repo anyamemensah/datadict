@@ -91,10 +91,7 @@ generate_dict <- function(data,
       if (!is.null(value_labels)) {
         # find na values (both labelled and tagged)
         na_labels <- labelled::get_na_values(x)
-        na_vals_x <- if (is.double(x))
-          haven::na_tag(x)
-        else
-          NULL
+        na_vals_x <- if (is.double(x)) {haven::na_tag(x)} else {NULL}
         na_values <- na.omit(na_vals_x)
         
         # affix a prefix (na_) to 'tagged' values
