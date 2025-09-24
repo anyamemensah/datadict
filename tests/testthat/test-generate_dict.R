@@ -66,7 +66,7 @@ test_that("Expected output", {
     
   expected_dict <-
     tibble::tibble(
-      column_index = c(rep(1, times = 5), rep(2, times = 3)),
+      variable_index = c(rep(1, times = 5), rep(2, times = 3)),
       variable_name = c(rep("gender", times = 5), rep("african_born", times = 3)),
       question_label = c(rep("Respondent's gender identity", times = 5), 
                          rep("Whether respondent was born on the continent of Africa", 
