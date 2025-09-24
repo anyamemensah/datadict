@@ -24,7 +24,7 @@ To begin, load `datadict`
 library(datadict)
 ```
 
-The `datadict` package currently includes a single function, `generate_dict()`. This function creates a data dictionary based on a data frame. The resulting data dictionary contains column indices (which help identify groups of variables with multiple values or labels), variable names, question labels (if available), variable values, value labels, and the frequencies of both non-missing and missing values or labels.
+The `datadict` package currently includes a single function, `generate_dict()`. This function creates a data dictionary based on a data frame. The resulting data dictionary contains variable indices (which help identify groups of variables with multiple values or labels), variable names (as they appear in the dataset), question labels (if available), variable values, value labels, and the frequencies of both non-missing and missing values/labels.
 
 ## Generating a data dictionary
 
@@ -54,15 +54,34 @@ generate_dict(data = sample_data, max_display_values = 5)
 generate_dict(data = sample_data, max_display_values = 10)
 ```
 
-You can also use the `q_label_width` argument to control the number of characters from a question (or variable) label that should appear in the dictionary for each entry. By default, up to 100 characters are shown.
+Use the `q_label_width` argument to set how many characters from a question or variable label are displayed for each entry in the dictionary. By default, the dictionary shows up to 100 characters.
 
 ``` {r}
 generate_dict(data = gss) |>
-  dplyr::select(column_index, question_label) |>
+  dplyr::select(variable_index, question_label) |>
   dplyr::distinct()
 
 generate_dict(data = gss, q_label_width = 15) |>
-  dplyr::select(column_index, question_label) |>
+  dplyr::select(variable_index, question_label) |>
   dplyr::distinct()
 ```
+
+
+Finally, `generate_dict()` automatically excludes any variables that contain only `NA` values or only empty strings (`""`) from the dictionary. After running the function, it will print the names of these excluded variables to the console.
+
+```{r}
+set.seed(0721)
+sample_data2 <- data.frame(
+  id = sample(1:100, size = 100, replace = FALSE),
+  empty_col = NA,
+  empty_col2 = "",
+  non_empty_col = sample(c("Yes", "No", "Maybe", NA), size = 100, replace = TRUE),
+  non_empty_col2 = sample(c("", NA), size = 100, replace = TRUE)
+)
+
+generate_dict(data = sample_data2, max_display_values = 5)
+```
+
+
+
 

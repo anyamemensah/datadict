@@ -1,7 +1,7 @@
 #' Generate a data dictionary from a data frame.
 #'
 #' @description `generate_dict()` generates a data dictionary from a data frame. The data
-#' dictionary includes column indices (which help identify groups of variables with multiple 
+#' dictionary includes variable indices (which help identify groups of variables with multiple 
 #' values or labels), variable names, question labels (if available), variable values, value 
 #' labels, and the frequencies of both non-missing and missing values or labels. NOTE:
 #' "tagged" missing values will appear with `na_` prefix under the `value_labels` column.
@@ -20,11 +20,11 @@
 #' the label will be shown.
 #'
 #' @returns A tibble summarizing the contents of `data` is displayed. The resulting columns 
-#' include column index (column_index; location of the variable within the dataset), variable 
-#' names (variable_name) as they appear in the data frame, question labels (question_label), 
-#' distinct variable values (variable_values), corresponding value labels (value_labels), 
-#' frequencies (n_size; the number of times each unique value/label appears), and a boolean 
-#' flag (is_range) indicating whether the data for each variable is shown as a range.
+#' include variable index (variable_index), variable names (variable_name) as they appear 
+#' in the data frame, question labels (question_label), distinct variable values 
+#' (variable_values), corresponding value labels (value_labels), frequencies (n_size; 
+#' the number of times each unique value/label appears), and a boolean flag (is_range) 
+#' indicating whether the data for each variable is shown as a range.
 #'
 #' @examples
 #' generate_dict(data = nlsy)
@@ -157,7 +157,7 @@ generate_dict <- function(data,
       
       # Finalize the entry
       row_list[[row_num]] <- list(
-        column_index = num,
+        variable_index = num,
         variable_name = cols_to_select[num],
         question_label = question_label,
         variable_values = as.character(values),
@@ -168,7 +168,7 @@ generate_dict <- function(data,
       row_num <- row_num + 1
       
       row_list[[row_num]] <- list(
-        column_index = num,
+        variable_index = num,
         variable_name = cols_to_select[num],
         question_label = question_label,
         variable_values = NA,
