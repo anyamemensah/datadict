@@ -5,7 +5,7 @@
 \alias{nursing_work}
 \title{Nursing Workforce Survey Data}
 \format{
-A tibble with 10,000 rows and 865 columns:
+A tibble with 5,000 rows and 865 columns:
 \describe{
 \item{Q1}{Actively licensed RN}
 \item{Q2STATE}{State of first RN license}
@@ -879,9 +879,9 @@ nursing_work
 }
 \description{
 This dataset is a subset of the National Sample Survey of Registered Nurses and
-the National Sample Survey of Nurse Practitioners. A random sample of 10,000 records was
-selected from the Registered Nurses Sample for use with this package. For more information
-about the Nursing Workforce Survey Dataset, visit
+the National Sample Survey of Nurse Practitioners. A random sample of 5,000 records was
+selected from the Registered Nurses Sample (2008 SPSS Format) for use with this package.
+For more information about the Nursing Workforce Survey Dataset, visit
 https://data.hrsa.gov/topics/health-workforce/nchwa/nursing-workforce-survey-data.
 }
 \keyword{datasets}
