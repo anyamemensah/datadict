@@ -156,7 +156,8 @@ generate_dict <- function(data,
         x <- factor(x, levels = unname(value_labels), labels = names(value_labels))
         n_size <- tabulate(x)
         
-        # If factor, extract levels and then tally the unique occurrences
+        # If factor OR if not numeric and not a factor, extract levels and then 
+        # tally the unique occurrences
       } else if (is.factor(x) || ((!is.numeric(x) && !is.factor(x)))) {
         
         # Coerce to factor if not
