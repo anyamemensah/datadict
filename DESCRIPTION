@@ -17,10 +17,10 @@ RoxygenNote: 7.3.3
 Imports: 
     dplyr,
     haven,
-    labelled,
     tibble,
     withr
 Suggests: 
+    labelled,
     knitr,
     rmarkdown,
     testthat (>= 3.0.0),

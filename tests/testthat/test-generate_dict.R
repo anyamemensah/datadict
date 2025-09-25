@@ -54,13 +54,12 @@ test_that("Expected output", {
   ) |>
     dplyr::mutate(
       gender = labelled::labelled(gender, 
-                                  labels = c(woman = 1, man = 2, `non-binary` = 3),
+                                  labels = c(woman = 1, man = 2, `non-binary` = 3, "I don't know" = 9),
                                   label = "Respondent's gender identity"),
       african_born = labelled::labelled(african_born, 
                                   labels = c(yes = 1, no = 0),
                                   label = "Whether respondent was born on the continent of Africa")
     )
-   labelled::na_values(observed_data[["gender"]]) <- 9
   
   observed_dict <- generate_dict(data = observed_data)
     
@@ -68,14 +67,15 @@ test_that("Expected output", {
     tibble::tibble(
       variable_index = c(rep(1, times = 5), rep(2, times = 3)),
       variable_name = c(rep("gender", times = 5), rep("african_born", times = 3)),
-      question_label = c(rep("Respondent's gender identity", times = 5), 
+      variable_label = c(rep("Respondent's gender identity", times = 5), 
                          rep("Whether respondent was born on the continent of Africa", 
                              times = 3)),
+      variable_type = "labelled",
       variable_values = as.character(c(1:3, 9, NA, 0:1, NA)),
-      value_labels = c("woman", "man", "non-binary", "na_9", 
+      value_labels = c("woman", "man", "non-binary", "I don't know", 
                        "system missing", "no", "yes", 
                        "system missing"),
-      n_size = c(16, 15, 10, 9, 0, 12, 21, 17),
+      n_size = c(16, 15, 10, 9, 0, 21, 12, 17),
       is_range = rep(FALSE, times = 8)
     )
   

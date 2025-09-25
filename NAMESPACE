@@ -3,7 +3,6 @@
 export(generate_dict)
 importFrom(dplyr,bind_rows)
 importFrom(haven,na_tag)
-importFrom(labelled,get_na_values)
 importFrom(stats,na.omit)
 importFrom(stats,setNames)
 importFrom(tibble,as_tibble)

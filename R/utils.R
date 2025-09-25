@@ -1,38 +1,3 @@
-.get_attribute <- function(x, attribute = c("label", "labels")) {
-  
-  attribute <- match.arg(attribute)
-  
-  return(attr(x, which = attribute, exact = TRUE))
-  
-}
-
-
-.get_val_labels <- function(x, attribute = "labels") {
-  
-  .get_attribute(x = x, attribute = attribute)
-  
-}
-
-
-.get_q_Label <- function(x, attribute = "label", label_width = 100) {
-  
-  qLabel <- .get_attribute(x = x, attribute = attribute)
-  
-  if (!is.null(qLabel)) {
-    # only retain first n number of characters of question label
-    if (nchar(qLabel) > label_width) {
-      qLabel <- substr(qLabel, start = 1, stop = label_width)
-    }
-    
-    return(qLabel)
-    
-  } else {
-    return("NO QUESTION LABEL")
-    
-  }
-}
-
-
 .select_cols <- function(data, cols_to_select) {
   
   all_cols <- colnames(data)
@@ -54,15 +19,11 @@
 }
 
 
-.return_empty_cols <- function(data) {
-  is_all_na <- colSums(is.na(data)) == nrow(data)
+.return_empty_cols <- function(data, empty_values = c("", NA)) {
   
-  is_all_empty <- sapply(data, \(col) {
-    sum(as.character(col) == "", na.rm = TRUE) == length(col)
-  })
+  is_empty_col <- vapply(data, function(x) all(x %in% empty_values), logical(1))
   
-  which(is_all_na | is_all_empty)
-  
+  which(is_empty_col)
 }
 
 
@@ -88,5 +49,30 @@
     return(paste(text, collapse = paste0(" ", before_last)))
   
   paste0(paste(text[1:(text_n - 1)], collapse = sep), sep, before_last, text[text_n])
+  
+}
+
+
+.get_var_type <- function(x) {
+  
+  x <- class(x)
+  
+  if ("haven_labelled" %in% x) {
+    "labelled"
+  } else if ("factor" %in% x) {
+    "factor"
+  } else if ("POSIXt" %in% x | "POSIXct" %in% x |
+             "POSIXlt" %in% x | "POSIXt" %in% x |
+             "Date" %in% x  | "difftime" %in% x
+  ) {
+    "datetime"
+  } else if ("numeric" %in% x | "integer" %in% x |
+             "double" %in% x) {
+    "numeric"
+  } else if ("logical" %in% x) {
+    "logical"
+  } else {
+    "character"
+  }
   
 }

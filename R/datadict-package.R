@@ -2,7 +2,6 @@
 "_PACKAGE"
 
 ## usethis namespace: start
-#' @importFrom labelled get_na_values
 #' @importFrom haven na_tag
 #' @importFrom stats setNames
 #' @importFrom stats na.omit

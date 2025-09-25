@@ -24,7 +24,7 @@ To begin, load `datadict`
 library(datadict)
 ```
 
-The `datadict` package currently includes a single function, `generate_dict()`. This function creates a data dictionary based on a data frame. The resulting data dictionary contains variable indices (which help identify groups of variables with multiple values or labels), variable names (as they appear in the dataset), question labels (if available), variable values, value labels, and the frequencies of both non-missing and missing values/labels.
+The `datadict` package currently includes a single function, `generate_dict()`. This function creates a data dictionary based on a data frame. The resulting data dictionary contains variable indices (which help identify groups of variables with multiple values or labels), variable names (as they appear in the dataset), question labels (if available), variable values, value labels, and the frequencies of both non-missing and missing values.
 
 ## Generating a data dictionary
 
@@ -40,7 +40,7 @@ To specify which columns to include in the dictionary, provide the names of the 
 generate_dict(data = gss, cols = c("age", "sexnow1", "hispanic", "race", "martial"))
 ```
 
-With `generate_dict()`, you can use the `max_display_values` argument to set how many unique values or labels are shown for each numeric variable. This is particularly helpful when numeric variables have only a few different values, as it lets you display all values or labels rather than summarizing them in a range:
+With `generate_dict()`, you can use the `max_display_values` argument to set how many unique values are shown for each numeric variable. This is particularly helpful when numeric variables have only a few different values, as it lets you display all values rather than summarizing them in a range:
 
 ``` {r}
 set.seed(0721)
@@ -54,20 +54,19 @@ generate_dict(data = sample_data, max_display_values = 5)
 generate_dict(data = sample_data, max_display_values = 10)
 ```
 
-Use the `q_label_width` argument to set how many characters from a question or variable label are displayed for each entry in the dictionary. By default, the dictionary shows up to 100 characters.
+Use the `default_var_label_width` argument to specify the maximum number of characters from a variable label that should be displayed for each entry in the dictionary. By default, the dictionary shows up to 100 characters.
 
 ``` {r}
 generate_dict(data = gss) |>
-  dplyr::select(variable_index, question_label) |>
+  dplyr::select(variable_index, variable_label) |>
   dplyr::distinct()
 
-generate_dict(data = gss, q_label_width = 15) |>
-  dplyr::select(variable_index, question_label) |>
+generate_dict(data = gss, default_var_label_width = 15) |>
+  dplyr::select(variable_index, variable_label) |>
   dplyr::distinct()
 ```
 
-
-Finally, `generate_dict()` automatically excludes any variables that contain only `NA` values or only empty strings (`""`) from the dictionary. After running the function, it will print the names of these excluded variables to the console.
+`generate_dict()` automatically excludes any variables that contain only `NA` values or only empty strings (`""`) from the dictionary. After running the function, it will print the names of these excluded variables to the console.
 
 ```{r}
 set.seed(0721)
@@ -82,6 +81,21 @@ sample_data2 <- data.frame(
 generate_dict(data = sample_data2, max_display_values = 5)
 ```
 
+You can also request to remove or retain value labels not present in the data using the `drop_unused_labels` argument. These unused value labels are identified separately for each variable.
+
+``` {r}
+generate_dict(data = gss, cols = "age")
+
+generate_dict(data = gss, cols = "age", drop_unused_labels = FALSE)
+```
+
+Finally, you can specify a default label for variables without one using the `default_var_label` argument. The default variable used is `NO QUESTION LABEL`:
+
+``` {r}
+generate_dict(data = nlsy)
+
+generate_dict(data = nlsy, default_var_label = "None provided")
+```
 
 
 

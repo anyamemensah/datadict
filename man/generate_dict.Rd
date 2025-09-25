@@ -4,7 +4,15 @@
 \alias{generate_dict}
 \title{Generate a data dictionary from a data frame.}
 \usage{
-generate_dict(data, cols = NULL, max_display_values = 10, q_label_width = 100)
+generate_dict(
+  data,
+  cols = NULL,
+  max_display_values = 10,
+  default_var_label = NULL,
+  default_var_label_width = 100,
+  default_empty_values = c("", NA),
+  drop_unused_labels = TRUE
+)
 }
 \arguments{
 \item{data}{A data frame.}
@@ -19,14 +27,26 @@ more unique values than this limit, the values are summarized and presented as a
 This setting is especially useful when numeric variables have only a few  distinct values,
 as it allows all values to be shown instead of condensing them into a range.}
 
-\item{q_label_width}{An integer that sets the maximum number of characters displayed
+\item{default_var_label}{A character string specifying the default label for variables without
+one in \code{data}. Default is \verb{NO QUESTION LABEL}.}
+
+\item{default_var_label_width}{An integer that sets the maximum number of characters displayed
 for a question (or variable) label. Default is \code{100} and the first 100 characters of
 the label will be shown.}
+
+\item{default_empty_values}{A character string, or vector of character strings, specifying
+default values to search for in each variable of \code{data}. If an entire column consists solely
+of any or all of these values, that variable will be excluded from the dictionary. Default
+values to search for are \code{NA} and \code{""}.}
+
+\item{drop_unused_labels}{A boolean value specifying whether to remove value labels not present
+in the data. These unused value labels are identified separately for each variable. Default is
+\code{TRUE}.}
 }
 \value{
 A tibble summarizing the contents of \code{data} is displayed. The resulting columns
 include variable index (variable_index), variable names (variable_name) as they appear
-in the data frame, question labels (question_label), distinct variable values
+in the data frame, question labels (variable_label), distinct variable values
 (variable_values), corresponding value labels (value_labels), frequencies (n_size;
 the number of times each unique value/label appears), and a boolean flag (is_range)
 indicating whether the data for each variable is shown as a range.
@@ -35,16 +55,23 @@ indicating whether the data for each variable is shown as a range.
 \code{generate_dict()} generates a data dictionary from a data frame. The data
 dictionary includes variable indices (which help identify groups of variables with multiple
 values or labels), variable names, question labels (if available), variable values, value
-labels, and the frequencies of both non-missing and missing values or labels. NOTE:
-"tagged" missing values will appear with \code{na_} prefix under the \code{value_labels} column.
+labels, and the frequencies of both non-missing and missing values or labels. NOTE: "tagged"
+missing values will appear with the prefix \code{NA_tagged} under the \code{value_labels} column.
+For variables with value label attributes (i.e., 'labelled' variables), any unique values
+that do not have a corresponding value label will have the value itself used as a value label
+in the \code{value_labels} column.
 }
 \examples{
 generate_dict(data = nlsy)
 
 # example shortening question labels to 25 characters
-generate_dict(data = gss, q_label_width = 25)
+generate_dict(data = gss, default_var_label_width = 25)
 
 # example selecting a subset of variables from a data frame
 generate_dict(data = gss, cols = c("year","age","sexnow1","hispanic","race","marital"))
+
+# example retaining all value labels
+generate_dict(data = gss, cols = c("age"))
+generate_dict(data = gss, cols = c("age"), drop_unused_labels = FALSE)
 
 }
