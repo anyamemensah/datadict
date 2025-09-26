@@ -2,6 +2,7 @@
 
 export(generate_dict)
 importFrom(dplyr,bind_rows)
+importFrom(dplyr,coalesce)
 importFrom(haven,na_tag)
 importFrom(stats,na.omit)
 importFrom(stats,setNames)

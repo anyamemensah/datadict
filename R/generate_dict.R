@@ -2,40 +2,38 @@
 #'
 #' @description `generate_dict()` generates a data dictionary from a data frame. The data
 #' dictionary includes variable indices (which help identify groups of variables with multiple 
-#' values or labels), variable names, question labels (if available), variable values, value 
-#' labels, and the frequencies of both non-missing and missing values or labels. NOTE: "tagged" 
-#' missing values will appear with the prefix `NA_tagged` under the `value_labels` column. 
-#' For variables with value label attributes (i.e., 'labelled' variables), any unique values 
-#' that do not have a corresponding value label will have the value itself used as a value label 
-#' in the `value_labels` column.
+#' values or labels), variable names, variable labels (if available), variable types, variable 
+#' values, value labels, and the frequencies of both non-missing and missing values or labels. 
+#' NOTE: "tagged" missing values will appear with the prefix `NA_tagged` under the `value_labels` 
+#' column. For variables with value label attributes (i.e., 'labelled' variables), any unique 
+#' values that do not have a corresponding value label will have the value itself used as a value 
+#' label in the `value_labels` column. Variables that consist solely of `NA` values will be excluded 
+#' from the dictionary.
 #'
 #' @param data A data frame.
-#' @param cols A character string, or vector of character strings, of the variable names
-#' in `data` to include in the dictionary. Default is `NULL` and all variables will be
-#' included in the dictionary.
-#' @param max_display_values An integer that sets the maximum number of unique values from 
-#' a numeric vector to display as individual rows in the dictionary. If the  vector contains 
-#' more unique values than this limit, the values are summarized and presented as a range. 
-#' This setting is especially useful when numeric variables have only a few  distinct values,
-#' as it allows all values to be shown instead of condensing them into a range.
-#' @param default_var_label A character string specifying the default label for variables without 
-#' one in `data`. Default is `NO QUESTION LABEL`.
-#' @param default_var_label_width An integer that sets the maximum number of characters displayed 
-#' for a question (or variable) label. Default is `100` and the first 100 characters of 
-#' the label will be shown.
-#' @param default_empty_values A character string, or vector of character strings, specifying 
-#' default values to search for in each variable of `data`. If an entire column consists solely 
-#' of any or all of these values, that variable will be excluded from the dictionary. Default
-#' values to search for are `NA` and `""`.
-#' @param drop_unused_labels A boolean value specifying whether to remove value labels not present 
-#' in the data. These unused value labels are identified separately for each variable. Default is 
-#' `TRUE`.
+#' @param cols A character string or a vector of character strings indicating which variable 
+#' names from `data` to include in the dictionary. By default (`NULL`), information for all 
+#' non-empty variables in `data` will be included.
+#' @param max_numeric_display An integer specifying the maximum number of unique numeric values 
+#' to display as individual rows in the dictionary. If a numeric vector has more unique values 
+#' than the specified limit, the values are summarized as a range. This option is particularly 
+#' helpful when numeric variables have only a few distinct values, allowing all of them to be 
+#' displayed rather than condensed into a range. The default is `NULL`, which sets the maximum 
+#' number of unique displayed values to 10.
+#' @param default_var_label A character string to use as the default label for variables in `data` 
+#' that do not have an existing label. The default is `NULL`, in which case the label is set to 
+#' `NO QUESTION LABEL`.
+#' @param default_var_label_width An integer specifying the maximum number of characters to display 
+#' for each question or variable label. If `NULL` (default), only the first 100 characters of each label will 
+#' be shown.
+#' @param drop_unused_labels If `FALSE` retains all value labels and not just those present in the 
+#' data. These unused value labels are identified separately for each variable. Default is `TRUE`.
 #'
 #' @returns A tibble summarizing the contents of `data` is displayed. The resulting columns 
 #' include variable index (variable_index), variable names (variable_name) as they appear 
-#' in the data frame, question labels (variable_label), distinct variable values 
-#' (variable_values), corresponding value labels (value_labels), frequencies (n_size; 
-#' the number of times each unique value/label appears), and a boolean flag (is_range) 
+#' in the data frame, variable labels (variable_label), variable types (variable_type) distinct 
+#' variable values (variable_values), corresponding value labels (value_labels), frequencies 
+#' (n_size; the number of times each unique value/label pair appears), and a boolean flag (is_range) 
 #' indicating whether the data for each variable is shown as a range.
 #'
 #' @examples
@@ -47,17 +45,16 @@
 #' # example selecting a subset of variables from a data frame
 #' generate_dict(data = gss, cols = c("year","age","sexnow1","hispanic","race","marital"))
 #' 
-#' # example retaining all value labels
+#' # example retaining only valid value labels vs all defined
 #' generate_dict(data = gss, cols = c("age"))
 #' generate_dict(data = gss, cols = c("age"), drop_unused_labels = FALSE)
 #'
 #' @export
 generate_dict <- function(data,
                           cols = NULL,
-                          max_display_values = 10,
+                          max_numeric_display = NULL,
                           default_var_label = NULL,
-                          default_var_label_width = 100,
-                          default_empty_values = c("", NA),
+                          default_var_label_width = NULL,
                           drop_unused_labels = TRUE) {
   withr::with_options(list(scipen = 999), {
     
@@ -70,78 +67,120 @@ generate_dict <- function(data,
       stop("The 'data' argument is empty.")
     }
     
-    # Find 'cols' to include in the dictionary; stop if none are found
-    cols_to_select <- .select_cols(data = data, cols_to_select = cols)
-    
-    if (!length(cols_to_select) || is.null(cols_to_select)) {
-      stop("No variable names matching those provided were found in 'data'.")
+    # Check 'max_numeric_display' is a numeric vector of length 1
+    if (is.null(max_numeric_display)) {
+      max_numeric_display <- 10L
+    } else {
+      max_numeric_display <- suppressWarnings(as.integer(max_numeric_display))
     }
     
-    # Check if any 'cols' are empty; if yes, remove them from 'cols_to_select'
-    # and create an object to hold the names of the variables that were removed
-    # to print to screen as a message with the dictionary
-    empty_cols <- .return_empty_cols(data = data[cols_to_select], empty_values = default_empty_values)
+    if (!is.integer(max_numeric_display) || length(max_numeric_display) !=1 || is.na(max_numeric_display)) {
+      stop("Invalid 'max_numeric_display' argument. 'max_numeric_display' must be an integer vector of length one.")
+    }
     
+    # Check 'default_var_label' is a character vector of length 1
+    if (is.null(default_var_label)) {
+      default_var_label <- "NO QUESTION LABEL"
+    } else {
+      default_var_label <- default_var_label
+    }
+    
+    if (!is.character(default_var_label) || length(max_numeric_display) !=1) {
+      stop("Invalid 'default_var_label' argument. 'default_var_label' must be a character vector of length one.")
+    }
+    
+    # Check 'default_var_label_width' is a numeric vector of length 1
+    if (is.null(default_var_label_width)) {
+      default_var_label_width <- 100L
+    } else {
+      default_var_label_width <- suppressWarnings(as.integer(default_var_label_width))
+    }
+    
+    if (!is.integer(default_var_label_width) || length(default_var_label_width) !=1 || is.na(default_var_label_width)) {
+      stop("Invalid 'default_var_label_width' argument. 'default_var_label_width' must be an integer vector of length one.")
+    }
+    
+    # Check 'drop_unused_labels' is a logical vector of length 1
+    if (!is.logical(drop_unused_labels) || length(drop_unused_labels) !=1) {
+      stop("Invalid 'drop_unused_labels' argument. 'drop_unused_labels' must be a logical vector of length one.")
+    }
+    
+    # Find 'cols_to_select' for the dictionary. 
+    cols_info <- .select_cols(data = data, cols_to_select = cols)
+    
+    cols_to_select <- cols_info$selected   
+    
+    empty_cols <- cols_info$all_missing  
+    
+    # Check 'cols_to_select' is not empty, if it is stop
+    if (!length(cols_to_select) || is.null(cols_to_select)) {
+      if (length(empty_cols) > 0) {
+        stop("All selected variables consist entirely of missing values. Please review 'data' and select different variables.")
+      } else {
+        stop("No variable names matching those provided were found in 'data'.")
+      }
+    }
+    
+    # Create an object to hold the names of 'empty_cols' variables to print 
+    # to console as a message with the dictionary
     if (length(empty_cols) > 0) {
       cols_removed <- paste0(
-        "The following variables in 'data' were excluded from the dictionary because they are empty: ",
-        .join_text(text = names(empty_cols))
+        "The following variables in 'data' were excluded from the dictionary because they consist entirely of missing values: ",
+        .join_text(text = empty_cols)
       )
-      
-      cols_to_select <- cols_to_select[-empty_cols]
     }
     
-    # Check that there are still some columns to generate a dictionary for
-    if (!length(cols_to_select) || is.null(cols_to_select)) {
-      stop("All selected variables were empty and there are no remaining variables to review.")
-    }
-    
-    # Subset data
+    # Preprocessing: subset relevant columns from 'data' and pre-calculate lists of variable attributes 
     data <- data[cols_to_select]
     
-    # Create a dictionary 'entry' for each variable in 'cols_to_select'
+    variable_labels_list <- lapply(cols_to_select, function(col) attr(data[[col]], "label", exact = TRUE))
+    names(variable_labels_list) <- cols_to_select
+    variable_labels_list <- .process_variable_labels(list_var_labels = variable_labels_list, 
+                                                     default_var_label_width = default_var_label_width, 
+                                                     default_var_label = default_var_label)
+    
+    variable_types_list <- lapply(cols_to_select, function(col) .get_var_type(data[[col]]))
+    
+    value_labels_list <- lapply(cols_to_select, function(col) attr(data[[col]], "labels", exact = TRUE))
+    names(value_labels_list) <- cols_to_select
+    
+    na_tagged_labels <- lapply(cols_to_select, function(col) any(haven::is_tagged_na(data[[col]])))
+    
     row_list <- list()
     row_num <- 1
     
     for (num in seq_along(cols_to_select)) {
       
-      # Setup
       x <- data[[num]]
-      variable_label <- get_var_label(x, default_var_label, default_var_label_width)
-      value_labels <- attr(x, "labels", exact = TRUE)
-      variable_type <- .get_var_type(x)
+  
       display_range <- FALSE
       
-      # Check for NAs
-      x_na <- is.na(x)
-      
-      # If any 'tagged' NA values are found, affix a prefix (NA_tagged) to them, and 
-      # then add the values back to 'x' as character string and recheck for NAs
-      if (any(haven::is_tagged_na(x))) {
-        value_labels[paste0("NA_tagged(", stats::na.omit(haven::na_tag(x)), ")")] <-
+      # If 'x' 'tagged' NA values, affix a prefix (NA_tagged) to them, add the 'tagged' 
+      # values back to 'x' as character string
+      if (na_tagged_labels[[num]]) {
+        value_labels_list[[num]][paste0("NA_tagged(", stats::na.omit(haven::na_tag(x)), ")")] <-
           as.character(stats::na.omit(haven::na_tag(x)))
   
-        # Add all 'tagged' NA values back to x
         x <- dplyr::coalesce(as.character(x), haven::na_tag(x))
-        
-        # Then recheck for NAs
-        x_na <- is.na(x)
       }
       
-      # Find non-missing, unique values
-      x <- x[!(x_na)]
+      # Identify unique values in 'x'
+      x_na <- is.na(x)
+      x <- x[!x_na]
       unique_values <- unique(x)
       
-      # If labels were found, check for unique value/label pairs
-      if (!is.null(value_labels) && length(value_labels) > 0) {
+      # If 'value_labels' is not empty, check for unique value/label pairs, 
+      # then tally the unique occurrences
+      if (!is.null(value_labels_list[[num]]) && length(value_labels_list[[num]]) > 0) {
         
-        # unique values without labels to add
+        value_labels <- value_labels_list[[num]]
+        
         if (!all(unique_values %in% unname(value_labels))) {
           labels_to_add <- unique_values[!unique_values %in% value_labels]
           value_labels <- c(value_labels, stats::setNames(labels_to_add, as.character(labels_to_add)))
         }
         
-        # Whether to drop unused labels
+        # If 'drop_unused_labels' is TRUE, drop unused value labels
         if (drop_unused_labels) {
           if (!all(unname(value_labels) %in% unique_values)) {
             labs_to_remove <- value_labels[!value_labels %in% unique_values]
@@ -150,107 +189,76 @@ generate_dict <- function(data,
           }
         }
         
-        # Sort on values, coerce 'x' to factor, and then tally the unique occurrences 
         valLabels <- names(value_labels)[order(unname(value_labels))]
-        values <- value_labels[order(unname(value_labels))]
-        x <- factor(x, levels = unname(value_labels), labels = names(value_labels))
-        n_size <- tabulate(x)
+        values <- unname(value_labels[order(unname(value_labels))])
+        n_size <- .count_occurences(x, values)
         
-        # If factor OR if not numeric and not a factor, extract levels and then 
-        # tally the unique occurrences
+        # If 'x' is a factor OR if 'x' is not numeric and not a factor extract 
+        # values and then tally the unique occurrences
       } else if (is.factor(x) || ((!is.numeric(x) && !is.factor(x)))) {
         
-        # Coerce to factor if not
-        if (!is.numeric(x) && !is.factor(x)) {
-          x <- as.factor(x)
-        }
-        
-        values <- levels(x)
+        values <- unique_values[order(unique_values)]
         valLabels <- NA
-        n_size <- tabulate(x)
+        n_size <- .count_occurences(x, values)
         
         # If numeric
       } else {
         valLabels <- NA
         
-        # Print range, if length of unique_values > max_display_values
-        if (length(unique_values) > max_display_values) {
+        # Print range, if length of unique_values > max_numeric_display
+        if (length(unique_values) > max_numeric_display) {
           display_range <- TRUE
+          
           r_vals <- range(x, na.rm = TRUE)
-          values <- sprintf("%.2f - %.2f", r_vals[1], r_vals[2])
+          
+          if (!any(r_vals %% 1 != 0)) {
+            values <- sprintf("%.0f - %.0f", r_vals[1], r_vals[2])
+          } else {
+            sprintf("%.2f - %.2f", r_vals[1], r_vals[2])
+          }
+          
           n_size <- sum(!x_na)
           
-          # Otherwise, sort on values and then tally the unique occurrences
+          # Otherwise, sort on unique values and then tally the unique occurrences
         } else {
-          values <- unique_values[order(unique_values)]
-          n_size <- tabulate(as.factor(x))
+          values <- as.character(unique_values[order(unique_values)])
+          n_size <- .count_occurences(x, values)
         }
       }
       
-      # Finalize the entry
-      row_list[[row_num]] <- list(
+      # Append all items to 'entry'
+      row_list[[length(row_list) + 1]] <- list(
         variable_index = num,
         variable_name = cols_to_select[num],
-        variable_label = variable_label,
-        variable_type = variable_type,
+        variable_label = variable_labels_list[[num]],
+        variable_type = variable_types_list[[num]],
         variable_values = as.character(values),
         value_labels = as.character(valLabels),
-        n_size = n_size,
+        n_size = as.integer(n_size),
         is_range = display_range
       )
-      row_num <- row_num + 1
-      
-      row_list[[row_num]] <- list(
+
+      row_list[[length(row_list) + 1]] <- list(
         variable_index = num,
         variable_name = cols_to_select[num],
-        variable_label = variable_label,
-        variable_type = variable_type,
+        variable_label = variable_labels_list[[num]],
+        variable_type = variable_types_list[[num]],
         variable_values = NA,
         value_labels = "system missing",
         n_size = sum(x_na),
         is_range = display_range
       )
-      row_num <- row_num + 1
     }
     
-    # Combine into a tibble
     data_dictionary <- dplyr::bind_rows(lapply(row_list, tibble::as_tibble))
     
     if (length(empty_cols) > 0) {
-      # Print message of columns that were removed (if any)
+      # Print message of empty columns that were removed (if any)
       message(cols_removed)
     }
     
-    # Return dictionary
     data_dictionary
     
   })
 }
-#'
-#' @keywords internal
-get_var_label <- function(x, default_value = NULL, label_width = 100) {
-  
-  label <- attr(x, "label", exact = TRUE)
-  
-  if (is.null(label)) {
-    label <- check_default_label(default_value)
-  }
-  if (nchar(label) > label_width) {
-    label <- substr(label, start = 1, stop = label_width)
-  }
-  label
-}
-#'
-#' @keywords internal
-check_default_label <- function(default_value = NULL) {
-  
-  if (!is.null(default_value) && (!is.character(default_value) || length(default_value) != 1)) {
-    stop("default_value should either be NULL or a character vector of length one.")
-  }
-  
-  if (is.null(default_value)) {
-    return ("NO QUESTION LABEL")
-  } else {
-    return(default_value)
-  }
-}
+

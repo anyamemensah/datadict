@@ -40,7 +40,7 @@ To specify which columns to include in the dictionary, provide the names of the 
 generate_dict(data = gss, cols = c("age", "sexnow1", "hispanic", "race", "martial"))
 ```
 
-With `generate_dict()`, you can use the `max_display_values` argument to set how many unique values are shown for each numeric variable. This is particularly helpful when numeric variables have only a few different values, as it lets you display all values rather than summarizing them in a range:
+With `generate_dict()`, you can use the `max_numeric_display` argument to set how many unique values are shown for each numeric variable. This is particularly helpful when numeric variables have only a few different values, as it lets you display all values rather than summarizing them in a range:
 
 ``` {r}
 set.seed(0721)
@@ -50,8 +50,8 @@ sample_data <- data.frame(
   birth_order = sample(1:10, size = 100, replace = TRUE)
 )
 
-generate_dict(data = sample_data, max_display_values = 5)
-generate_dict(data = sample_data, max_display_values = 10)
+generate_dict(data = sample_data, max_numeric_display = 5)
+generate_dict(data = sample_data, max_numeric_display = 10)
 ```
 
 Use the `default_var_label_width` argument to specify the maximum number of characters from a variable label that should be displayed for each entry in the dictionary. By default, the dictionary shows up to 100 characters.
@@ -66,7 +66,7 @@ generate_dict(data = gss, default_var_label_width = 15) |>
   dplyr::distinct()
 ```
 
-`generate_dict()` automatically excludes any variables that contain only `NA` values or only empty strings (`""`) from the dictionary. After running the function, it will print the names of these excluded variables to the console.
+`generate_dict()` automatically excludes any variables that contain only `NA` values from the dictionary. After running the function, it will print the names of these excluded variables to the console.
 
 ```{r}
 set.seed(0721)
@@ -78,7 +78,7 @@ sample_data2 <- data.frame(
   non_empty_col2 = sample(c("", NA), size = 100, replace = TRUE)
 )
 
-generate_dict(data = sample_data2, max_display_values = 5)
+generate_dict(data = sample_data2, max_numeric_display = 5)
 ```
 
 You can also request to remove or retain value labels not present in the data using the `drop_unused_labels` argument. These unused value labels are identified separately for each variable.
