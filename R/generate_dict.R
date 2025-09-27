@@ -214,7 +214,7 @@ generate_dict <- function(data,
           if (!any(r_vals %% 1 != 0)) {
             values <- sprintf("%.0f - %.0f", r_vals[1], r_vals[2])
           } else {
-            sprintf("%.2f - %.2f", r_vals[1], r_vals[2])
+            values <- sprintf("%.2f - %.2f", r_vals[1], r_vals[2])
           }
           
           n_size <- sum(!x_na)
