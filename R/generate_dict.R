@@ -149,14 +149,15 @@ generate_dict <- function(data,
     row_list <- list()
     row_num <- 1
     
+    # Create an 'entry' for each variable in 'cols_to_select'
     for (num in seq_along(cols_to_select)) {
       
       x <- data[[num]]
   
       display_range <- FALSE
       
-      # If 'x' 'tagged' NA values, affix a prefix (NA_tagged) to them, add the 'tagged' 
-      # values back to 'x' as character string
+      # If 'x' has 'tagged' NA values, affix a prefix (NA_tagged) to them, add 
+      # then add the updated 'tagged' values back to 'x' as character string
       if (na_tagged_labels[[num]]) {
         value_labels_list[[num]][paste0("NA_tagged(", stats::na.omit(haven::na_tag(x)), ")")] <-
           as.character(stats::na.omit(haven::na_tag(x)))
