@@ -16,9 +16,9 @@ generate_dict(
 \arguments{
 \item{data}{A data frame.}
 
-\item{cols}{A character string or a vector of character strings indicating which variable
-names from \code{data} to include in the dictionary. By default (\code{NULL}), information for all
-non-empty variables in \code{data} will be included.}
+\item{cols}{A character string or a vector of character strings indicating which
+variable names from \code{data} to include in the dictionary. By default (\code{NULL}), information
+for all non-empty variables in \code{data} will be included.}
 
 \item{max_numeric_display}{An integer specifying the maximum number of unique numeric values
 to display as individual rows in the dictionary. If a numeric vector has more unique values
@@ -27,35 +27,36 @@ helpful when numeric variables have only a few distinct values, allowing all of 
 displayed rather than condensed into a range. The default is \code{NULL}, which sets the maximum
 number of unique displayed values to 10.}
 
-\item{default_var_label}{A character string to use as the default label for variables in \code{data}
-that do not have an existing label. The default is \code{NULL}, in which case the label is set to
-\verb{NO QUESTION LABEL}.}
+\item{default_var_label}{A character string to use as the default label for variables in
+\code{data} that do not have an existing label. The default is \code{NULL}, in which case the label
+is set to \verb{NO QUESTION LABEL}.}
 
-\item{default_var_label_width}{An integer specifying the maximum number of characters to display
-for each question or variable label. If \code{NULL} (default), only the first 100 characters of each label will
-be shown.}
+\item{default_var_label_width}{An integer specifying the maximum number of characters to
+display for each question or variable label. If \code{NULL} (default), only the first 100
+characters of each label will be shown.}
 
-\item{drop_unused_labels}{If \code{FALSE} retains all value labels and not just those present in the
-data. These unused value labels are identified separately for each variable. Default is \code{TRUE}.}
+\item{drop_unused_labels}{If \code{FALSE} retains all value labels and not just those present in
+the data. These unused value labels are identified separately for each variable. Default is
+\code{TRUE}.}
 }
 \value{
 A tibble summarizing the contents of \code{data} is displayed. The resulting columns
 include variable index (variable_index), variable names (variable_name) as they appear
-in the data frame, variable labels (variable_label), variable types (variable_type) distinct
-variable values (variable_values), corresponding value labels (value_labels), frequencies
-(n_size; the number of times each unique value/label pair appears), and a boolean flag (is_range)
-indicating whether the data for each variable is shown as a range.
+in the data frame, variable labels (variable_label), variable types (variable_type)
+distinct variable values (variable_values), corresponding value labels (value_labels),
+frequencies (n_size; the number of times each unique value/label pair appears), and a
+boolean flag (is_range) indicating whether the data for each variable is shown as a range.
 }
 \description{
-\code{generate_dict()} generates a data dictionary from a data frame. The data
-dictionary includes variable indices (which help identify groups of variables with multiple
-values or labels), variable names, variable labels (if available), variable types, variable
-values, value labels, and the frequencies of both non-missing and missing values or labels.
-NOTE: "tagged" missing values will appear with the prefix \code{NA_tagged} under the \code{value_labels}
-column. For variables with value label attributes (i.e., 'labelled' variables), any unique
-values that do not have a corresponding value label will have the value itself used as a value
-label in the \code{value_labels} column. Variables that consist solely of \code{NA} values will be excluded
-from the dictionary.
+\code{generate_dict()} generates a data dictionary from a data frame. The
+data dictionary includes variable indices (which help identify groups of variables
+with multiple values or labels), variable names, variable labels (if available),
+variable types, variable values, value labels, and the frequencies of both non-missing
+and missing values or labels. NOTE: "tagged" missing values will appear with the prefix
+\code{NA_tagged} under the \code{value_labels} column. For variables with value label attributes
+(i.e., 'labelled' variables), any unique values that do not have a corresponding value
+label will have the value itself used as a value label in the \code{value_labels} column.
+Variables that consist solely of \code{NA} values will be excluded from the dictionary.
 }
 \examples{
 generate_dict(data = nlsy)
