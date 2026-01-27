@@ -15,7 +15,6 @@
 #' @importFrom data.table setorder
 #' @importFrom generics intersect
 #' @importFrom generics setdiff
-#' @importFrom haven zap_labels
 #' @importFrom tibble as_tibble
 ## usethis namespace: end
 NULL
