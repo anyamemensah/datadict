@@ -57,7 +57,7 @@ generate_dict(data = sample_data, n_max = 5)
 generate_dict(data = sample_data, n_max = 10L)
 ```
 
-Sets the character limit for labels in the data dictionary using the `label_width` argument. This ensures long text doesn't disrupt the table layout. By default, the dictionary shows up to 100 characters.
+Set the character limit for labels in the data dictionary using the `label_width` argument. This ensures long text doesn't disrupt the table layout. By default, the dictionary shows up to 100 characters.
 
 ``` {r}
 long_labels <- generate_dict(data = gss) 
