@@ -1,31 +1,34 @@
 Package: datadict
 Type: Package
-Title: Package For Generating a Data Dictionary
+Title: Generate a Data Dictionary
 Version: 0.1.0
 Authors@R: c(
-    person(
-      "Ama", "Nyame-Mensah",
-      email = "ama@anyamemensah.com",
-      role = c("aut", "cre")
-    )
-  )
-Description: A simple package for generating a data dictionary.
-License: file LICENSE
+    person(given = "Ama", family = "Nyame-Mensah", 
+    email = "ama@anyamemensah.com", role = c("aut", "cre")))
+Description: Provides a clean, consistent summary of a data frame or 
+    tibble's structure. Through its core function, generate_dict(), 
+    the package automates the extraction of variable metadata, 
+    including names, labels, data types, and distributions (such as 
+    unique values, value labels, and numeric ranges), producing a 
+    standardized reference that simplifies data exploration and 
+    documentation.
+License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 7.3.3
-Imports: 
-    dplyr,
+Imports:
+    cli,
+    data.table,
+    generics,
     haven,
     tibble,
-    withr
 Suggests: 
     labelled,
     knitr,
     rmarkdown,
-    testthat (>= 3.0.0),
+    testthat (>= 3.0.0)
 VignetteBuilder: knitr
 Config/testthat/edition: 3
 Depends: 
-    R (>= 4.2)
+    R (>= 3.5)
 Roxygen: list(markdown = TRUE)

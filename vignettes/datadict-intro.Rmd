@@ -2,7 +2,7 @@
 title: "Introduction to datadict"
 output: rmarkdown::html_vignette
 description: >
-  This document introduces you to the package's 'generate_dict' function and shows you how to apply it to a data frame.
+  This document introduces you to the package's 'generate_dict()' function.
 vignette: >
   %\VignetteIndexEntry{Introduction to datadict}
   %\VignetteEngine{knitr::rmarkdown}
@@ -16,86 +16,78 @@ knitr::opts_chunk$set(
 )
 ```
 
-Welcome to the `datadict` package. This package allows users to create a data dictionary from a data frame. If you notice a bug or have trouble using a function, please contact [Ama Nyame-Mensah](mailto:ama@anyamemensah.com), the package's maintainer.
+## Overview
 
-To begin, load `datadict`
+**datadict** is an R package that provides a clean, consistent summary of a data frame or tibble's structure. Through its core function, `generate_dict()`, the package automates the extraction of variable metadata, including names, labels, data types, and distributions (such as unique values, value labels, and numeric ranges), producing a standardized reference that simplifies data exploration and documentation.
+
+To begin working with **datadict**, load the package:
 
 ```{r setup}
 library(datadict)
 ```
 
-The `datadict` package currently includes a single function, `generate_dict()`. This function creates a data dictionary based on a data frame. The resulting data dictionary contains variable indices (which help identify groups of variables with multiple values or labels), variable names (as they appear in the dataset), question labels (if available), variable values, value labels, and the frequencies of both non-missing and missing values.
-
 ## Generating a data dictionary
 
-To create a data dictionary, provide the name of your data frame to the `data` argument of the `generate_dict()` function. The output will be a tibble containing summary details for every column in the specified data frame.
+To generate a data dictionary, pass your data frame into the `data` argument of the `generate_dict()` function. This produces a tibble summarizing every column in your dataset
 
 ``` {r}
 generate_dict(data = gss)
 ```
 
-To specify which columns to include in the dictionary, provide the names of the variables you want using the `cols` argument:
+To build a dictionary for specific variables in your dataset, pass a character vector of column names to the `columns` argument
 
 ``` {r}
-generate_dict(data = gss, cols = c("age", "sexnow1", "hispanic", "race", "martial"))
+generate_dict(
+  data = gss, 
+  columns = c("age", "sexnow1", "hispanic", "race", "martial")
+)
 ```
 
-With `generate_dict()`, you can use the `max_numeric_display` argument to set how many unique values are shown for each numeric variable. This is particularly helpful when numeric variables have only a few different values, as it lets you display all values rather than summarizing them in a range:
+Use the `n_max` argument to set the threshold for how numeric variables are displayed. If a variable has fewer unique values than `n_max`, every value is shown individually in the data dictionary. Once that limit is exceeded, the values are automatically summarized into a range:
 
 ``` {r}
 set.seed(0721)
 sample_data <- data.frame(
-  id = sample(1:100, size = 100, replace = FALSE),
-  gender = sample(c("woman", "man", "non-binary"), size = 100, replace = TRUE),
-  birth_order = sample(1:10, size = 100, replace = TRUE)
+  id = sample(1:10000, size = 100, replace = FALSE),
+  gender = sample(c("woman", "man", "non-binary", NA), size = 100, replace = TRUE),
+  birth_order = sample(c(1:10, NA), size = 10000, replace = TRUE)
 )
 
-generate_dict(data = sample_data, max_numeric_display = 5)
-generate_dict(data = sample_data, max_numeric_display = 10)
+generate_dict(data = sample_data, n_max = 5)
+generate_dict(data = sample_data, n_max = 10L)
 ```
 
-Use the `default_var_label_width` argument to specify the maximum number of characters from a variable label that should be displayed for each entry in the dictionary. By default, the dictionary shows up to 100 characters.
+Sets the character limit for labels in the data dictionary using the `label_width` argument. This ensures long text doesn't disrupt the table layout. By default, the dictionary shows up to 100 characters.
 
 ``` {r}
-generate_dict(data = gss) |>
-  dplyr::select(variable_index, variable_label) |>
-  dplyr::distinct()
+long_labels <- generate_dict(data = gss) 
+unique(long_labels$variable_label)
 
-generate_dict(data = gss, default_var_label_width = 15) |>
-  dplyr::select(variable_index, variable_label) |>
-  dplyr::distinct()
+shortened_labels <- generate_dict(data = gss, label_width = 15)
+unique(shortened_labels$variable_label)
 ```
 
-`generate_dict()` automatically excludes any variables that contain only `NA` values from the dictionary. After running the function, it will print the names of these excluded variables to the console.
+Any variables containing only missing data (`NA`) are omitted from the final dictionary. The function will notify you of these exclusions by printing the variable names to the console.
 
 ```{r}
-set.seed(0721)
+set.seed(0803)
 sample_data2 <- data.frame(
   id = sample(1:100, size = 100, replace = FALSE),
   empty_col = NA,
-  empty_col2 = "",
-  non_empty_col = sample(c("Yes", "No", "Maybe", NA), size = 100, replace = TRUE),
-  non_empty_col2 = sample(c("", NA), size = 100, replace = TRUE)
+  non_empty_col1 = "",
+  non_empty_col2 = sample(c("Yes", "No", "Maybe", NA), size = 100, replace = TRUE),
+  non_empty_col3 = sample(c("", NA), size = 100, replace = TRUE)
 )
 
-generate_dict(data = sample_data2, max_numeric_display = 5)
+generate_dict(data = sample_data2, n_max = 5)
 ```
 
-You can also request to remove or retain value labels not present in the data using the `drop_unused_labels` argument. These unused value labels are identified separately for each variable.
-
-``` {r}
-generate_dict(data = gss, cols = "age")
-
-generate_dict(data = gss, cols = "age", drop_unused_labels = FALSE)
-```
-
-Finally, you can specify a default label for variables without one using the `default_var_label` argument. The default variable used is `NO QUESTION LABEL`:
+Use the `label_fallback` argument to provide a placeholder for variables that lack a formal label. If left unspecified, this defaults to `NO QUESTION LABEL`.
 
 ``` {r}
 generate_dict(data = nlsy)
 
-generate_dict(data = nlsy, default_var_label = "None provided")
+generate_dict(data = nlsy, label_fallback = "None provided")
 ```
-
 
 

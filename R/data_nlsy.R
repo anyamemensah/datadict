@@ -5,9 +5,9 @@
 #' variables.
 #'
 #' For more information about the National Longitudinal Survey of Youth,
-#' visit https://www.nlsinfo.org/.
+#' visit \url{https://www.nlsinfo.org/}.
 #'
-#' @format A tibble with 2,976 rows and 11 columns:
+#' @format A data.frame with 2,976 rows and 11 columns:
 #' \describe{
 #' \item{CID}{Child identification number)}
 #' \item{race}{race of child (Hispanic, Black, Non-Black,Non-Hispanic)}

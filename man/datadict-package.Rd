@@ -4,9 +4,9 @@
 \name{datadict-package}
 \alias{datadict}
 \alias{datadict-package}
-\title{datadict: Package For Generating a Data Dictionary}
+\title{datadict: Generate a Data Dictionary}
 \description{
-A simple package for generating a data dictionary.
+Provides a clean, consistent summary of a data frame or tibble's structure. Through its core function, generate_dict(), the package automates the extraction of variable metadata, including names, labels, data types, and distributions (such as unique values, value labels, and numeric ranges), producing a standardized reference that simplifies data exploration and documentation.
 }
 \author{
 \strong{Maintainer}: Ama Nyame-Mensah \email{ama@anyamemensah.com}

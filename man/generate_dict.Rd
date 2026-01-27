@@ -2,73 +2,67 @@
 % Please edit documentation in R/generate_dict.R
 \name{generate_dict}
 \alias{generate_dict}
-\title{Generate a data dictionary from a data frame.}
+\title{Generate a data dictionary}
 \usage{
 generate_dict(
   data,
-  cols = NULL,
-  max_numeric_display = NULL,
-  default_var_label = NULL,
-  default_var_label_width = NULL,
-  drop_unused_labels = TRUE
+  columns = NULL,
+  n_max = 10L,
+  label_fallback = "NO QUESTION LABEL",
+  label_width = 100L
 )
 }
 \arguments{
-\item{data}{A data frame.}
+\item{data}{A data frame or tibble.}
 
-\item{cols}{A character string or a vector of character strings indicating which
-variable names from \code{data} to include in the dictionary. By default (\code{NULL}), information
-for all non-empty variables in \code{data} will be included.}
+\item{columns}{An optional character vector of column names to include in
+the dictionary. If \code{NULL} (default), information for all non-empty columns/
+variables are included in the dictionary.}
 
-\item{max_numeric_display}{An integer specifying the maximum number of unique numeric values
-to display as individual rows in the dictionary. If a numeric vector has more unique values
-than the specified limit, the values are summarized as a range. This option is particularly
-helpful when numeric variables have only a few distinct values, allowing all of them to be
-displayed rather than condensed into a range. The default is \code{NULL}, which sets the maximum
-number of unique displayed values to 10.}
+\item{n_max}{An integer that controls how detailed numeric reporting should
+be. If a numeric variable has more unique values than this threshold, it is
+summarized  as a range (e.g., \verb{1 – 100}). If it has fewer, each unique value
+receives its own row in the dictionary. Defaults to \code{10}.}
 
-\item{default_var_label}{A character string to use as the default label for variables in
-\code{data} that do not have an existing label. The default is \code{NULL}, in which case the label
-is set to \verb{NO QUESTION LABEL}.}
+\item{label_fallback}{The placeholder text to use when a variable does not
+have a defined label attribute. Defaults to \code{"NO QUESTION LABEL"}.}
 
-\item{default_var_label_width}{An integer specifying the maximum number of characters to
-display for each question or variable label. If \code{NULL} (default), only the first 100
-characters of each label will be shown.}
-
-\item{drop_unused_labels}{If \code{FALSE} retains all value labels and not just those present in
-the data. These unused value labels are identified separately for each variable. Default is
-\code{TRUE}.}
+\item{label_width}{An integer to truncate long variable labels for better
+readability. Defaults to \code{100} characters.}
 }
 \value{
-A tibble summarizing the contents of \code{data} is displayed. The resulting columns
-include variable index (variable_index), variable names (variable_name) as they appear
-in the data frame, variable labels (variable_label), variable types (variable_type)
-distinct variable values (variable_values), corresponding value labels (value_labels),
-frequencies (n_size; the number of times each unique value/label pair appears), and a
-boolean flag (is_range) indicating whether the data for each variable is shown as a range.
+A tibble with the following structural metadata:
+\itemize{
+\item variable_name: The column/variable name as it appears in the data source
+\item variable_label: The descriptive variable label or the default placeholder.
+\item variable_type: The type of data contained within the column/variable (e.g.,
+numeric, character, factor). Data type is derived using R's \code{class()} function.
+\item variable_values: Individual data values or range of data values.
+\item value_labels: The descriptive labels assigned to specific data values.
+\item n_size: The frequency count for each value/label pair.
+\item is_range: A boolean flag indicating if the \code{variable_values} column represents
+a summarized range rather than a discrete value.
+}
 }
 \description{
-\code{generate_dict()} generates a data dictionary from a data frame. The
-data dictionary includes variable indices (which help identify groups of variables
-with multiple values or labels), variable names, variable labels (if available),
-variable types, variable values, value labels, and the frequencies of both non-missing
-and missing values or labels. NOTE: "tagged" missing values will appear with the prefix
-\code{NA_tagged} under the \code{value_labels} column. For variables with value label attributes
-(i.e., 'labelled' variables), any unique values that do not have a corresponding value
-label will have the value itself used as a value label in the \code{value_labels} column.
-Variables that consist solely of \code{NA} values will be excluded from the dictionary.
+\code{generate_dict()} builds a data dictionary from a data frame
+or tibble. It produces a structured overview of variable metadata, including
+variable names, labels, data types, value distributions, and any available
+values or value labels.
 }
 \examples{
 generate_dict(data = nlsy)
 
 # example shortening question labels to 25 characters
-generate_dict(data = gss, default_var_label_width = 25)
+generate_dict(data = gss, label_width = 25)
 
 # example selecting a subset of variables from a data frame
-generate_dict(data = gss, cols = c("year","age","sexnow1","hispanic","race","marital"))
+generate_dict(
+  data = gss,
+  columns = c("year", "age", "sexnow1", "hispanic", "race", "marital")
+)
 
-# example retaining only valid value labels vs all defined
-generate_dict(data = gss, cols = c("age"))
-generate_dict(data = gss, cols = c("age"), drop_unused_labels = FALSE)
-
+}
+\author{
+Ama Nyame-Mensah
 }

@@ -1,0 +1,38 @@
+template:
+  bootswatch: litera
+  
+url: https://anyamemensah.github.io/datadict/
+
+navbar:
+  structure:
+    left:
+      - home
+      - reference
+      - articles
+    right:
+      - github
+  components:
+    home:
+      text: Home
+      href: index.html
+    reference:
+      text: Reference
+      href: reference/index.html
+    articles:
+      text: Articles
+      menu:
+        - text: Introduction to datadict
+          href: articles/datadict-intro.html
+    github:
+      icon: fab fa-github fa-lg
+      href: https://github.com/anyamemensah/datadict
+      aria-label: View source code on GitHub
+reference:
+  - title: Generating a data dictionary
+    contents:
+      - generate_dict
+  - title: Datasets
+    contents:
+      - gss
+      - nlsy
+      - nursing_work

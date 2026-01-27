@@ -1,7 +1,8 @@
 #' @title General Social Survey (GSS) 2022 Data
 #'
-#' @description These data are a subset from the General Social Survey 2022 Individual
-#' Year Data Sets.For more information, visit: https://gss.norc.org/us/en/gss/get-the-data/spss.html.
+#' @description These data are a subset from the General Social Survey 
+#' (GSS) 2022 Individual Year Data Sets. For more information, please visit:
+#' \url{https://gss.norc.org/get-the-data/spss.html}.
 #'
 #' @format A tibble with 4,149 rows and 40 columns:
 #' \describe{

@@ -1,10 +1,11 @@
 #' @title Nursing Workforce Survey Data
 #'
-#' @description This dataset is a subset of the National Sample Survey of Registered Nurses and
-#' the National Sample Survey of Nurse Practitioners. A random sample of 5,000 records was
-#' selected from the Registered Nurses Sample (2008 SPSS Format) for use with this package. 
-#' For more information about the Nursing Workforce Survey Dataset, visit
-#' https://data.hrsa.gov/topics/health-workforce/nchwa/nursing-workforce-survey-data.
+#' @description These data contain a random sample of 5,000 records from the 
+#' 2008 National Sample Survey of Registered Nurses (SPSS Format) and the 
+#' National Sample Survey of Nurse Practitioners, specifically formatted for 
+#' use in this package. For more information about the Nursing Workforce Survey 
+#' Dataset, please visit:
+#' \url{https://data.hrsa.gov/topics/health-workforce/nchwa/nursing-workforce-survey-data}.
 #'
 #' @format A tibble with 5,000 rows and 865 columns:
 #' \describe{
@@ -183,11 +184,11 @@
 #' \item{Q35_10}{Secondary RN position - Telehealth, telenursing or call center setting}
 #' \item{Q35_11}{Secondary RN position - Other specify (setting)}
 #' \item{Q36A_1}{Weeks per year (additional RN job #'1)}
-#'                               \item{Q36B_1}{Avg hours per week (additional RN job #'1)}
-#'                                                                 \item{Q36C_1}{State (additional RN job #'1)}
-#'                                                                                      \item{Q36A_2}{Weeks per year (additional RN job #' 2)}
-#'                                                                                                                    \item{Q36B_2}{Avg hours per week (additional RN job #'2)}
-#'                                                                                                                                                      \item{Q36C_2}{State (additional RN job #'2)}
+#' \item{Q36B_1}{Avg hours per week (additional RN job #'1)}
+#' \item{Q36C_1}{State (additional RN job #'1)}
+#' \item{Q36A_2}{Weeks per year (additional RN job #' 2)}
+#' \item{Q36B_2}{Avg hours per week (additional RN job #'2)}
+#' \item{Q36C_2}{State (additional RN job #'2)}
 #' \item{Q36A_3}{Weeks per year (all other RN jobs)}
 #' \item{Q36B_3}{Avg hours per week (all other RN jobs)}
 #' \item{Q37}{Pre-tax earnings other RN positions 2008}
