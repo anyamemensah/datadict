@@ -66,8 +66,9 @@ generate_dict <- function(data,
   check_n_max <- checks$n_max
   check_label_fallback <- checks$label_fallback
   check_label_width <- checks$label_width
-  
+
   dt_sub <- checks$dt[, ..check_columns]
+  dt_sub_backup <- checks$dt[, ..check_columns]
 
   # Extract three types of metadata: variable labels, variable 
   # types, and value labels
@@ -103,12 +104,7 @@ generate_dict <- function(data,
   )
   
   # Calculate frequencies, including system-missing values
-  # Note: All data is treated as character when building the frequency 
-  # table to keep columns aligned
   stats_dt <- long_dt[, .(n_size = .N), by = .(var, val)]
-  stats_dt[, sort_key := suppressWarnings(as.numeric(val))]
-  data.table::setorder(stats_dt, var, sort_key, val, na.last = TRUE)
-  stats_dt[, sort_key := NULL]
   
   # Assemble dictionary by iterating over the metadata list
   final_list <- lapply(check_columns, function(cn) {
@@ -180,6 +176,22 @@ generate_dict <- function(data,
         sort = FALSE
       )
       
+      # Sort for logical ordering
+      # Order row(s) by values/labels depending on data type
+      if (m$type == "factor") {
+        lvls <- levels(dt_sub_backup[[cn]])
+        main_rows[, sort_key := match(val, lvls)]
+        
+      } else if (m$type == "labelled") {
+        lvls <- as.character(m$variable_values)
+        main_rows[, sort_key := match(val, lvls)]
+        
+      } else {
+        main_rows[, sort_key := suppressWarnings(as.numeric(val))]
+      }
+      data.table::setorder(main_rows, sort_key, val, na.last = TRUE)
+      main_rows[, sort_key := NULL]
+      
       # Add other metadata to main dictionary
       main_rows[, `:=`(
         variable_name = cn,
@@ -207,19 +219,8 @@ generate_dict <- function(data,
     )
   }
   
-  # Final order of dictionary columns
-  select_final_dict_cols = c(
-    "variable_name",
-    "variable_label",
-    "variable_type",
-    "variable_values",
-    "value_labels",
-    "n_size",
-    "is_range"
-  )
-  
   final_dict = data.table::as.data.table(data.table::rbindlist(final_list, use.names=TRUE, fill = TRUE))
-  final_dict = final_dict[, ..select_final_dict_cols]
+  final_dict = final_dict[, ..dict_columns]
   
   # Return full data dictionary as tibble
   return(tibble::as_tibble(final_dict))
