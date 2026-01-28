@@ -20,7 +20,6 @@ Imports:
     cli,
     data.table,
     generics,
-    haven,
     tibble,
 Suggests: 
     labelled,
