@@ -79,10 +79,17 @@ generate_dict <- function(data,
         check_label_fallback
       ),
       type = get_var_type(x),
-      variable_values = unname(attr(x, "labels", exact = TRUE)),
+      variable_values = as.vector(unname(attr(x, "labels", exact = TRUE))),
       value_labels = names(attr(x, "labels", exact = TRUE))
     )
   })
+  
+  # Coerce 'haven_labelled' columns to atomic vectors
+  for (j in check_columns) {
+    if (inherits(dt_sub[[j]], "haven_labelled")) {
+      data.table::set(dt_sub, j = j, value = as.vector(dt_sub[[j]]))
+    }
+  }
   
   # Melt data to long format; one row per observation per column/variable
   long_dt <- suppressWarnings(
