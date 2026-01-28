@@ -115,10 +115,10 @@ test_that("Expected output #2", {
                          rep("Whether respondent was born on the continent of Africa", 
                              times = 3)),
       variable_type = "labelled",
-      variable_values = as.character(c(1:3, 9, NA, 0:1, NA)),
+      variable_values = as.character(c(1:3, 9, NA, 1,0, NA)),
       value_labels = c("woman", "man", "non-binary", "I don't know", 
-                       "system missing", "no", "yes", "system missing"),
-      n_size = c(16, 15, 10, 9, 0, 12, 21, 17),
+                       "system missing","yes", "no", "system missing"),
+      n_size = c(16, 15, 10, 9, 0, 21, 12, 17),
       is_range = rep(FALSE, times = 8)
     )
   expected_dict <- tibble::as_tibble(expected_dict)
