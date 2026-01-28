@@ -8,7 +8,7 @@ utils::globalVariables(c(
   ".N",
   ".",
   "..check_columns",
-  "..select_final_dict_cols",
+  "..dict_columns",
   "sort_key",
   "var",
   "val",
