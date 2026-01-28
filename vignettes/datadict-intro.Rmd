@@ -22,7 +22,7 @@ knitr::opts_chunk$set(
 
 To begin working with **datadict**, load the package:
 
-```{r setup}
+```{r, setup}
 library(datadict)
 ```
 
@@ -30,13 +30,13 @@ library(datadict)
 
 To generate a data dictionary, pass your data frame into the `data` argument of the `generate_dict()` function. This produces a tibble summarizing every column in your dataset
 
-``` {r}
+``` {r, gss_all_cols}
 generate_dict(data = gss)
 ```
 
 To build a dictionary for specific variables in your dataset, pass a character vector of column names to the `columns` argument
 
-``` {r}
+``` {r, gss_select_cols}
 generate_dict(
   data = gss, 
   columns = c("age", "sexnow1", "hispanic", "race", "martial")
@@ -45,7 +45,7 @@ generate_dict(
 
 Use the `n_max` argument to set the threshold for how numeric variables are displayed. If a variable has fewer unique values than `n_max`, every value is shown individually in the data dictionary. Once that limit is exceeded, the values are automatically summarized into a range:
 
-``` {r}
+``` {r, birth_ord}
 set.seed(0721)
 sample_data <- data.frame(
   id = sample(1:10000, size = 100, replace = FALSE),
@@ -59,7 +59,7 @@ generate_dict(data = sample_data, n_max = 10L)
 
 Set the character limit for labels in the data dictionary using the `label_width` argument. This ensures long text doesn't disrupt the table layout. By default, the dictionary shows up to 100 characters.
 
-``` {r}
+``` {r, label_exs}
 long_labels <- generate_dict(data = gss) 
 unique(long_labels$variable_label)
 
@@ -69,7 +69,7 @@ unique(shortened_labels$variable_label)
 
 Any variables containing only missing data (`NA`) are omitted from the final dictionary. The function will notify you of these exclusions by printing the variable names to the console.
 
-```{r}
+```{r, all_na}
 set.seed(0803)
 sample_data2 <- data.frame(
   id = sample(1:100, size = 100, replace = FALSE),
@@ -84,7 +84,7 @@ generate_dict(data = sample_data2, n_max = 5)
 
 Use the `label_fallback` argument to provide a placeholder for variables that lack a formal label. If left unspecified, this defaults to `NO QUESTION LABEL`.
 
-``` {r}
+``` {r, fallback}
 generate_dict(data = nlsy)
 
 generate_dict(data = nlsy, label_fallback = "None provided")
