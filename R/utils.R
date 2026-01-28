@@ -157,3 +157,14 @@ get_var_type <- function(x) {
     "character"
   }
 }
+
+## Constant dictionary columns
+dict_columns <-  c(
+  "variable_name",
+  "variable_label",
+  "variable_type",
+  "variable_values",
+  "value_labels",
+  "n_size",
+  "is_range"
+)
