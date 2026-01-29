@@ -58,7 +58,7 @@ generate_dict <- function(data,
     n_max = n_max,
     label_fallback = label_fallback,
     label_width = label_width
-    )
+  )
   
   checks <- generate_dict_checks(args)
   check_columns <- checks$columns
@@ -66,10 +66,10 @@ generate_dict <- function(data,
   check_n_max <- checks$n_max
   check_label_fallback <- checks$label_fallback
   check_label_width <- checks$label_width
-
+  
   dt_sub <- checks$dt[, ..check_columns]
   dt_sub_backup <- checks$dt[, ..check_columns]
-
+  
   # Extract three types of metadata: variable labels, variable 
   # types, and value labels
   meta_list <- lapply(dt_sub[, ..check_columns], function(x) {
@@ -102,9 +102,13 @@ generate_dict <- function(data,
       variable.name = "var"
     )
   )
+  data.table::setkeyv(long_dt, c("var", "val"))
   
   # Calculate frequencies, including system-missing values
   stats_dt <- long_dt[, .(n_size = .N), by = .(var, val)]
+  
+  # Split stats_dt into a list keyed by variable name
+  stats_by_var <- split(stats_dt, by = "var")
   
   # Assemble dictionary by iterating over the metadata list
   final_list <- lapply(check_columns, function(cn) {
@@ -112,7 +116,7 @@ generate_dict <- function(data,
     m <- meta_list[[cn]]
     
     # Column-specific stats
-    col_stats <- stats_dt[var == cn]
+    col_stats <- stats_by_var[[cn]]
     
     # Extract non-missing stats
     valid_stats <- col_stats[!is.na(val)]
@@ -129,13 +133,13 @@ generate_dict <- function(data,
       n_size = missing_count,
       is_range = FALSE
     )
-
-    # Flag whether the column contains numeric data or not
+    
+    # Create 'is_num' flag
     # Note: data type must be numeric AND number of rows in
     # valid_stats must be greater than specified n_max
     is_num <- m$type == "numeric" && nrow(valid_stats) > check_n_max
     
-    # If column data is numeric
+    # If column data are numeric
     if (is_num) {
       # Calculate range
       r_vals <- range(as.numeric(valid_stats$val), na.rm = TRUE)
@@ -198,10 +202,10 @@ generate_dict <- function(data,
         variable_label = m$label,
         variable_type = m$type,
         variable_values = val,
-        value_labels = data.table::fifelse(is.na(value_labels), val, value_labels),
-        n_size = data.table::nafill(x = n_size, fill = 0),
+        value_labels = data.table::fcoalesce(value_labels, val),
         is_range = FALSE
       )]
+      data.table::setnafill(main_rows, fill = 0, cols = "n_size")
     }
     
     # Merge main dictionary with missing dictionary (row)
