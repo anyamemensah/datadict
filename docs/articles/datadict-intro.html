@@ -12,7 +12,7 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous">
 <!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- pkgdown --><link href="../pkgdown.css" rel="stylesheet">
 <script src="../pkgdown.js"></script><meta property="og:title" content="Introduction to datadict">
-<meta property="og:description" content="This document introduces you to the package's 'generate_dict()' function.
+<meta property="og:description" content="This document introduces you to datadict's functions, and demonstrates how you can use them with data frames.
 ">
 <!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script><!--[if lt IE 9]>
 <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
@@ -92,24 +92,51 @@
 <div class="section level2">
 <h2 id="overview">Overview<a class="anchor" aria-label="anchor" href="#overview"></a>
 </h2>
-<p><strong>datadict</strong> is an R package that provides a clean,
-consistent summary of a data frame or tibble’s structure. Through its
-core function, <code><a href="../reference/generate_dict.html">generate_dict()</a></code>, the package automates the
-extraction of variable metadata, including names, labels, data types,
-and distributions (such as unique values, value labels, and numeric
-ranges), producing a standardized reference that simplifies data
-exploration and documentation.</p>
+<p>The <strong>datadict</strong> package is a focused toolset for
+creating and managing data dictionaries. It consists of three main
+functions designed to help you document, restructure, and verify your
+metadata.</p>
+<ol style="list-style-type: decimal">
+<li>
+<code><a href="../reference/generate_dict.html">generate_dict()</a></code> scans your data frame or tibble to
+build a structured overview of its metadata. It captures variable names,
+labels, and data types, while also summarizing value distributions and
+numeric ranges into a standardized reference.</li>
+<li>
+<code><a href="../reference/expand_delim_dict.html">expand_delim_dict()</a></code> is built for “unpacking” data
+dictionaries where multiple values are crammed into a single entry. It
+identifies delimited strings (e.g., “1, 2, 3”) and transforms them into
+a tidy, row-per-value format so that every unique mapping has its own
+dedicated row.</li>
+<li>
+<code><a href="../reference/validate_dict.html">validate_dict()</a></code> acts as a final check for structural
+integrity. It ensures that your from and to values align in length and
+that your dictionary entries are unique, preventing errors before you
+use the dictionary for recoding.</li>
+</ol>
+<p>In short:</p>
+<ul>
+<li>Use <code><a href="../reference/generate_dict.html">generate_dict()</a></code> to see what you have.</li>
+<li>Use <code><a href="../reference/expand_delim_dict.html">expand_delim_dict()</a></code> if your metadata is stored in
+delimited strings.</li>
+<li>Use <code><a href="../reference/validate_dict.html">validate_dict()</a></code> if you already have a data
+dictionary and want to ensure your from and to values align in length
+and that your dictionary entries are unique.</li>
+</ul>
+</div>
+<div class="section level2">
+<h2 id="working-with-datadict">Working with <strong>datadict</strong><a class="anchor" aria-label="anchor" href="#working-with-datadict"></a>
+</h2>
 <p>To begin working with <strong>datadict</strong>, load the
 package:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">datadict</span><span class="op">)</span></span></code></pre></div>
-</div>
-<div class="section level2">
-<h2 id="generating-a-data-dictionary">Generating a data dictionary<a class="anchor" aria-label="anchor" href="#generating-a-data-dictionary"></a>
-</h2>
-<p>To generate a data dictionary, pass your data frame into the
+<div class="section level3">
+<h3 id="generating-a-data-dictionary">Generating a data dictionary<a class="anchor" aria-label="anchor" href="#generating-a-data-dictionary"></a>
+</h3>
+<p>To generate a data dictionary, pass your data frame or tibble to the
 <code>data</code> argument of the <code><a href="../reference/generate_dict.html">generate_dict()</a></code> function.
-This produces a tibble summarizing every column in your dataset</p>
+This produces a tibble summarizing every column in your dataset.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/generate_dict.html">generate_dict</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">gss</span><span class="op">)</span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 772 × 7</span></span></span>
@@ -117,14 +144,14 @@ This produces a tibble summarizing every column in your dataset</p>
 <span><span class="co">#&gt;    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>         <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>         <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>           <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>       </span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span> id            Respondent ID number numeric       1 - 4150        <span style="color: #BB0000;">NA</span>          </span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span> id            Respondent ID number numeric       <span style="color: #BB0000;">NA</span>              system miss…</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span> year          GSS year for this r… labelled      2022            2022        </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span> year          GSS year for this r… labelled      -100            iap         </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span> year          GSS year for this r… labelled      -99             no answer   </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span> year          GSS year for this r… labelled      -98             don't know  </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span> year          GSS year for this r… labelled      -97             skipped on …</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span> year          GSS year for this r… labelled      -96             see codebook</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span> year          GSS year for this r… labelled      -95             uncodeable  </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span> year          GSS year for this r… labelled      -94             not imputab…</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span> year          GSS year for this r… labelled      -100            iap         </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span> year          GSS year for this r… labelled      -99             no answer   </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span> year          GSS year for this r… labelled      -98             don't know  </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span> year          GSS year for this r… labelled      -97             skipped on …</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span> year          GSS year for this r… labelled      -96             see codebook</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span> year          GSS year for this r… labelled      -95             uncodeable  </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span> year          GSS year for this r… labelled      -94             not imputab…</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span> year          GSS year for this r… labelled      -90             refused     </span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># ℹ 762 more rows</span></span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># ℹ 2 more variables: n_size &lt;int&gt;, is_range &lt;lgl&gt;</span></span></span></code></pre></div>
 <p>To build a dictionary for specific variables in your dataset, pass a
@@ -136,18 +163,18 @@ argument</p>
 <span>  columns <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"age"</span>, <span class="st">"sexnow1"</span>, <span class="st">"hispanic"</span>, <span class="st">"race"</span>, <span class="st">"martial"</span><span class="op">)</span></span>
 <span><span class="op">)</span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 136 × 7</span></span></span>
-<span><span class="co">#&gt;    variable_name variable_label    variable_type variable_values value_labels</span></span>
-<span><span class="co">#&gt;    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>         <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>             <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>         <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>           <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>       </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span> age           Age of respondent labelled      18              18          </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span> age           Age of respondent labelled      19              19          </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span> age           Age of respondent labelled      20              20          </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span> age           Age of respondent labelled      21              21          </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span> age           Age of respondent labelled      22              22          </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span> age           Age of respondent labelled      23              23          </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span> age           Age of respondent labelled      24              24          </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span> age           Age of respondent labelled      25              25          </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span> age           Age of respondent labelled      26              26          </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span> age           Age of respondent labelled      27              27          </span></span>
+<span><span class="co">#&gt;    variable_name variable_label    variable_type variable_values value_labels   </span></span>
+<span><span class="co">#&gt;    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>         <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>             <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>         <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>           <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>          </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span> age           Age of respondent labelled      -100            iap            </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span> age           Age of respondent labelled      -99             no answer      </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span> age           Age of respondent labelled      -98             don't know     </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span> age           Age of respondent labelled      -97             skipped on web </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span> age           Age of respondent labelled      -96             see codebook   </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span> age           Age of respondent labelled      -95             uncodeable     </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span> age           Age of respondent labelled      -94             not imputable  </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span> age           Age of respondent labelled      -90             refused        </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span> age           Age of respondent labelled      -80             not available …</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span> age           Age of respondent labelled      -70             not available …</span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># ℹ 126 more rows</span></span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># ℹ 2 more variables: n_size &lt;int&gt;, is_range &lt;lgl&gt;</span></span></span></code></pre></div>
 <p>Use the <code>n_max</code> argument to set the threshold for how
@@ -325,6 +352,239 @@ defaults to <code>NO QUESTION LABEL</code>.</p>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span> birthord      None provided  numeric       1                     1           </span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># ℹ 24 more rows</span></span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># ℹ 2 more variables: n_size &lt;int&gt;, is_range &lt;lgl&gt;</span></span></span></code></pre></div>
+</div>
+<div class="section level3">
+<h3 id="expanding-metadata-stored-in-delimited-strings">Expanding metadata stored in delimited strings<a class="anchor" aria-label="anchor" href="#expanding-metadata-stored-in-delimited-strings"></a>
+</h3>
+<p>In many real-world projects, data dictionaries are manually
+maintained in spreadsheets where multiple category codes and labels are
+stored within a single cell to save space. For example, a variable’s
+original values might be listed as <code>"1;2;3;4;5"</code> with
+corresponding labels stored as
+<code>"Strongly Disagree;Disagree;Neutral;Agree;Strongly Agree"</code>.
+While this format is easy for humans to read, it is difficult to use
+programmatically for recoding or joining. The
+<code><a href="../reference/expand_delim_dict.html">expand_delim_dict()</a></code> function transforms these “compressed”
+strings into a machine-readable format.</p>
+<p>The <code><a href="../reference/expand_delim_dict.html">expand_delim_dict()</a></code> function streamlines the
+splitting and validation of delimited data. It supports disparate
+separators for input and output values through the
+<code>from_delim</code> and <code>to_delim</code> arguments. During
+expansion, you can automatically sanitize the data by setting
+<code>remove_na</code> and <code>remove_empty</code> to TRUE. To
+maintain data integrity, the function uses <code>run_check</code> and
+<code>min_rows</code> to verify that each unique category in var_col
+meets a minimum row threshold and maintains a strict one-to-one
+relationship between values.</p>
+<p>Here is an example of a dictionary (<code>grad_app_dict_delim</code>)
+containing metadata for common variables found in graduate admissions
+data. The values within the <code>old_values</code> and
+<code>new_labels</code> columns are separated by semi-colons
+(<code>;</code>). Note that variables like <code>gre_verbal</code>
+contain long strings of delimited scores:</p>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">grad_app_dict_delim</span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 10 × 4</span></span></span>
+<span><span class="co">#&gt;    column_name      column_description               old_values       new_labels</span></span>
+<span><span class="co">#&gt;    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>            <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                            <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>            <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>     </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span> school_decision  School decision                  A;W;R            Accepted;…</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span> student_decision Student response                 A;D              Accepted …</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span> ft_pt            Full-time or Part-time applicant pt;ft;sub        Part-time…</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span> applied_dual_prg Applied to  dual degree program  NODUAL;YES       No;Yes    </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span> gender           Student gender identity          W;M;NB           Woman;Man…</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span> ethnicity        Student race/ethnicity           HL;ME;W;B;AP     Hispanic/…</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span> low_income       Student is low income            N;Y              No;Yes    </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span> gre_verbal       GRE Verbal                       130;131;132;133… 130;131;1…</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span> gre_quant        GRE Quant                        130;131;132;133… 130;131;1…</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span> gre_analytical   GRE Analytical                   0;0.5;1;1.5;2;2… 0;0.5;1;1…</span></span></code></pre></div>
+<p>We can use <code><a href="../reference/expand_delim_dict.html">expand_delim_dict()</a></code> to unpack this
+dictionary, expanding those compressed strings into a tidy,
+row-per-value format, where each value in <code>old_values</code> should
+have an accompanying <code>new_labels</code> value.</p>
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/expand_delim_dict.html">expand_delim_dict</a></span><span class="op">(</span></span>
+<span>  data <span class="op">=</span> <span class="va">grad_app_dict_delim</span>,</span>
+<span>  var_col <span class="op">=</span> <span class="st">"column_name"</span>,</span>
+<span>  from_col <span class="op">=</span> <span class="st">"old_values"</span>, </span>
+<span>  to_col <span class="op">=</span> <span class="st">"new_labels"</span>, </span>
+<span>  from_delim <span class="op">=</span> <span class="st">";"</span>, </span>
+<span>  to_delim <span class="op">=</span> <span class="st">";"</span>, </span>
+<span>  remove_na <span class="op">=</span> <span class="cn">FALSE</span>, </span>
+<span>  remove_empty <span class="op">=</span> <span class="cn">FALSE</span>, </span>
+<span>  min_rows <span class="op">=</span> <span class="fl">1L</span>, </span>
+<span>  run_check <span class="op">=</span> <span class="cn">TRUE</span></span>
+<span><span class="op">)</span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> `data` is a valid <span style="color: #0000BB;">&lt;data.frame&gt;</span>.</span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> <span style="color: #00BB00;">column_name</span> is a valid column in `data`.</span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> <span style="color: #00BB00;">old_values</span> is a valid column in `data`.</span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> <span style="color: #00BB00;">new_labels</span> is a valid column in `data`.</span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> All categories in <span style="color: #00BB00;">column_name</span> meet the <span style="color: #0000BB;">1</span>-row minimum.</span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> All categories in <span style="color: #00BB00;">column_name</span> have an equal number of from/to values.</span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 115 × 3</span></span></span>
+<span><span class="co">#&gt;    column_name      old_values new_labels    </span></span>
+<span><span class="co">#&gt;    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>            <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>         </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span> school_decision  A          Accepted      </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span> school_decision  W          Waitlisted    </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span> school_decision  R          Rejected      </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span> student_decision A          Accepted Offer</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span> student_decision D          Declined Offer</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span> ft_pt            pt         Part-time     </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span> ft_pt            ft         Full-time     </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span> ft_pt            sub        Submatriculate</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span> applied_dual_prg NODUAL     No            </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span> applied_dual_prg YES        Yes           </span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 105 more rows</span></span></span></code></pre></div>
+<p>The <code><a href="../reference/expand_delim_dict.html">expand_delim_dict()</a></code> function also includes built-in
+checks to ensure your metadata is parsed correctly. It primarily watches
+for two types of structural issues: mismatched mapping pairs and
+incorrect delimiter specifications.</p>
+<p>If the number of elements in your “from” column does not align with
+the number of elements in your “to” column for a specific variable, the
+function will throw an error identifying the first instance of the
+mismatch.</p>
+<p>In the example below, <code>var_2</code> has two “from” values (0 and
+1) but only one “to” label (False), triggering a length mismatch:</p>
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">mis_match_lens</span> <span class="op">&lt;-</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
+<span>    variable_name <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"var_1"</span>, <span class="st">"var_2"</span><span class="op">)</span>,</span>
+<span>    from_vals <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"1,2,3"</span>, <span class="st">"0,1"</span><span class="op">)</span>,</span>
+<span>    to_vals <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Yes;No;Maybe"</span>, <span class="st">"False"</span><span class="op">)</span></span>
+<span>  <span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="../reference/expand_delim_dict.html">expand_delim_dict</a></span><span class="op">(</span></span>
+<span>  data <span class="op">=</span> <span class="va">mis_match_lens</span>,</span>
+<span>  var_col <span class="op">=</span> <span class="st">"variable_name"</span>,</span>
+<span>  from_col <span class="op">=</span> <span class="st">"from_vals"</span>, </span>
+<span>  to_col <span class="op">=</span> <span class="st">"to_vals"</span>, </span>
+<span>  from_delim <span class="op">=</span> <span class="st">","</span>, </span>
+<span>  to_delim <span class="op">=</span> <span class="st">";"</span>, </span>
+<span>  remove_na <span class="op">=</span> <span class="cn">FALSE</span>, </span>
+<span>  remove_empty <span class="op">=</span> <span class="cn">FALSE</span>, </span>
+<span>  min_rows <span class="op">=</span> <span class="fl">1L</span>, </span>
+<span>  run_check <span class="op">=</span> <span class="cn">TRUE</span></span>
+<span><span class="op">)</span></span>
+<span><span class="co">#&gt; <span style="color: #BBBB00; font-weight: bold;">Error</span><span style="font-weight: bold;"> in `expand_delim_dict()`:</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BB0000;">✖</span> Mismatched from/to lengths detected in <span style="color: #00BB00;">var_2</span>.</span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> The number of unique <span style="color: #00BB00;">from_vals</span> values must match <span style="color: #00BB00;">to_vals</span> values.</span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">•</span> Values detected:</span></span>
+<span><span class="co">#&gt;   <span style="color: #00BB00;">from</span>: <span style="color: #0000BB;">"0"</span> and <span style="color: #0000BB;">"1"</span></span></span>
+<span><span class="co">#&gt;   <span style="color: #00BB00;">to</span>: <span style="color: #0000BB;">"False"</span></span></span></code></pre></div>
+<p>The function also monitors the integrity of the splitting process. If
+a column fails to split (resulting in a single string) but that string
+contains other common separators (e.g., <code>,</code>, <code>;</code>,
+or <code>|</code>), the function will flag it as a suspected delimiter
+mismatch.</p>
+<p>This is particularly helpful for catching instances where the
+<code>from_delim</code> and <code>to_delim</code> arguments have been
+accidentally swapped:</p>
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">suspicious_delim</span> <span class="op">&lt;-</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
+<span>    variable_name <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"var_1"</span>, <span class="st">"var_2"</span><span class="op">)</span>,</span>
+<span>    from_vals <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"1,2,3"</span>, <span class="st">"0,1"</span><span class="op">)</span>,</span>
+<span>    to_vals <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Yes;No;Maybe"</span>, <span class="st">"False"</span><span class="op">)</span></span>
+<span>  <span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="../reference/expand_delim_dict.html">expand_delim_dict</a></span><span class="op">(</span></span>
+<span>  data <span class="op">=</span> <span class="va">suspicious_delim</span>,</span>
+<span>  var_col <span class="op">=</span> <span class="st">"variable_name"</span>,</span>
+<span>  from_col <span class="op">=</span> <span class="st">"from_vals"</span>, </span>
+<span>  to_col <span class="op">=</span> <span class="st">"to_vals"</span>, </span>
+<span>  from_delim <span class="op">=</span> <span class="st">";"</span>, </span>
+<span>  to_delim <span class="op">=</span> <span class="st">","</span>, </span>
+<span>  remove_na <span class="op">=</span> <span class="cn">FALSE</span>, </span>
+<span>  remove_empty <span class="op">=</span> <span class="cn">FALSE</span>, </span>
+<span>  min_rows <span class="op">=</span> <span class="fl">1L</span>, </span>
+<span>  run_check <span class="op">=</span> <span class="cn">TRUE</span></span>
+<span><span class="op">)</span></span>
+<span><span class="co">#&gt; <span style="color: #BBBB00; font-weight: bold;">Error</span><span style="font-weight: bold;"> in `expand_delim_dict()`:</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BB0000;">✖</span> Suspected delimiter mismatch in <span style="color: #00BB00;">var_1</span>.</span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> It looks like the values weren't split, but the strings contain other</span></span>
+<span><span class="co">#&gt;   separators.</span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">•</span> Arguments: `from_delim = ;` and `to_delim = ,`.</span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">•</span> Values detected:</span></span>
+<span><span class="co">#&gt;   <span style="color: #00BB00;">from</span>: <span style="color: #0000BB;">"1,2,3"</span></span></span>
+<span><span class="co">#&gt;   <span style="color: #00BB00;">to</span>: <span style="color: #0000BB;">"Yes;No;Maybe"</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Confirm if your delimiter arguments match the data.</span></span></code></pre></div>
+</div>
+<div class="section level3">
+<h3 id="validating-a-data-dictionary">Validating a data dictionary<a class="anchor" aria-label="anchor" href="#validating-a-data-dictionary"></a>
+</h3>
+<p>Even if your dictionary is already formatted correctly, it is often
+useful to verify that your “from” and “to” values align.
+<code><a href="../reference/validate_dict.html">validate_dict()</a></code> performs a structural audit to ensure that
+every unique variable contains a matching number of “from” and “to”
+values, while also confirming that each variable meets your required
+minimum row threshold.</p>
+<p>The dictionary in the example below successfully passes all
+validation checks:</p>
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">dict_valid_pass</span> <span class="op">&lt;-</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
+<span>    variable_name <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="st">"var_1"</span>, times <span class="op">=</span> <span class="fl">3</span><span class="op">)</span>,</span>
+<span>                      <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="st">"var_2"</span>, times <span class="op">=</span> <span class="fl">2</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>    from_vals <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>,<span class="fl">2</span>,<span class="fl">3</span>,<span class="fl">0</span>,<span class="fl">1</span><span class="op">)</span>,</span>
+<span>    to_vals <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Yes"</span>,<span class="st">"No"</span>,<span class="st">"Maybe"</span>,<span class="st">"True"</span>,<span class="st">"False"</span><span class="op">)</span></span>
+<span>  <span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="../reference/validate_dict.html">validate_dict</a></span><span class="op">(</span></span>
+<span>  data <span class="op">=</span> <span class="va">dict_valid_pass</span>,</span>
+<span>  var_col <span class="op">=</span> <span class="st">"variable_name"</span>,</span>
+<span>  from_col <span class="op">=</span> <span class="st">"from_vals"</span>, </span>
+<span>  to_col <span class="op">=</span> <span class="st">"to_vals"</span>, </span>
+<span>  remove_na <span class="op">=</span> <span class="cn">FALSE</span>, </span>
+<span>  remove_empty <span class="op">=</span> <span class="cn">FALSE</span>, </span>
+<span>  min_rows <span class="op">=</span> <span class="fl">2L</span></span>
+<span><span class="op">)</span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> `data` is a valid <span style="color: #0000BB;">&lt;data.frame&gt;</span>.</span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> <span style="color: #00BB00;">variable_name</span> is a valid column in `data`.</span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> <span style="color: #00BB00;">from_vals</span> is a valid column in `data`.</span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> <span style="color: #00BB00;">to_vals</span> is a valid column in `data`.</span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> All categories in <span style="color: #00BB00;">variable_name</span> meet the <span style="color: #0000BB;">2</span>-row minimum.</span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> All categories in <span style="color: #00BB00;">variable_name</span> have an equal number of from/to values.</span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 5 × 3</span></span></span>
+<span><span class="co">#&gt;   variable_name from_vals to_vals</span></span>
+<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>             <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>  </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> var_1                 1 Yes    </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> var_1                 2 No     </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> var_1                 3 Maybe  </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span> var_2                 0 True   </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span> var_2                 1 False</span></span></code></pre></div>
+<p>However, in the example below, the value <code>1</code> is mapped to
+two different labels (“Yes” and “No”) for <code>var_1</code>. This
+creates a conflict where the number of unique <code>from_vals</code>
+does not match the number of unique <code>to_vals</code>. Note:
+<code><a href="../reference/validate_dict.html">validate_dict()</a></code> identifies the error by pointing you to the
+<strong>variable name(s)</strong> where the mapping logic fails.</p>
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">dict_valid_fail</span> <span class="op">&lt;-</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
+<span>    variable_name <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="st">"var_1"</span>, times <span class="op">=</span> <span class="fl">3</span><span class="op">)</span>,</span>
+<span>                      <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="st">"var_2"</span>, times <span class="op">=</span> <span class="fl">2</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>    from_vals <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>,<span class="fl">1</span>,<span class="fl">3</span>,<span class="fl">0</span>,<span class="fl">1</span><span class="op">)</span>,</span>
+<span>    to_vals <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Yes"</span>,<span class="st">"No"</span>,<span class="st">"Maybe"</span>,<span class="st">"True"</span>,<span class="st">"False"</span><span class="op">)</span></span>
+<span>  <span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="../reference/validate_dict.html">validate_dict</a></span><span class="op">(</span></span>
+<span>  data <span class="op">=</span> <span class="va">dict_valid_fail</span>,</span>
+<span>  var_col <span class="op">=</span> <span class="st">"variable_name"</span>,</span>
+<span>  from_col <span class="op">=</span> <span class="st">"from_vals"</span>, </span>
+<span>  to_col <span class="op">=</span> <span class="st">"to_vals"</span>, </span>
+<span>  remove_na <span class="op">=</span> <span class="cn">FALSE</span>, </span>
+<span>  remove_empty <span class="op">=</span> <span class="cn">FALSE</span>, </span>
+<span>  min_rows <span class="op">=</span> <span class="fl">2L</span></span>
+<span><span class="op">)</span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> `data` is a valid <span style="color: #0000BB;">&lt;data.frame&gt;</span>.</span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> <span style="color: #00BB00;">variable_name</span> is a valid column in `data`.</span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> <span style="color: #00BB00;">from_vals</span> is a valid column in `data`.</span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> <span style="color: #00BB00;">to_vals</span> is a valid column in `data`.</span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> All categories in <span style="color: #00BB00;">variable_name</span> meet the <span style="color: #0000BB;">2</span>-row minimum.</span></span>
+<span><span class="co">#&gt; <span style="color: #BBBB00; font-weight: bold;">Error</span><span style="font-weight: bold;"> in `validate_dict()`:</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BBBB00;">!</span> Mismatched from/to lengths detected.</span></span>
+<span><span class="co">#&gt; <span style="color: #BB0000;">✖</span> The number of unique <span style="color: #00BB00;">from_vals</span> values must match <span style="color: #00BB00;">to_vals</span> values.</span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Failing variables: <span style="color: #0000BB;">"var_1"</span></span></span></code></pre></div>
+</div>
 </div>
   </div>
 

@@ -111,15 +111,16 @@ readability. Defaults to <code>100</code> characters.</p></dd>
 </dl></div>
     <div id="value">
     <h2>Value</h2>
-    <p>A tibble with the following structural metadata:</p><ul><li><p>variable_name: The column/variable name as it appears in the data source</p></li>
+    <p>A tibble with the following structural metadata:</p><ul><li><p>variable_name: The column/variable name as it appears in the data source.</p></li>
 <li><p>variable_label: The descriptive variable label or the default placeholder.</p></li>
 <li><p>variable_type: The type of data contained within the column/variable (e.g.,
-numeric, character, factor). Data type is derived using R's <code><a href="https://rdrr.io/r/base/class.html" class="external-link">class()</a></code> function.</p></li>
+numeric, character, labelled, factor). Data type is derived using R's <code><a href="https://rdrr.io/r/base/class.html" class="external-link">class()</a></code>
+function.</p></li>
 <li><p>variable_values: Individual data values or range of data values.</p></li>
 <li><p>value_labels: The descriptive labels assigned to specific data values.</p></li>
 <li><p>n_size: The frequency count for each value/label pair.</p></li>
-<li><p>is_range: A boolean flag indicating if the <code>variable_values</code> column represents
-a summarized range rather than a discrete value.</p></li>
+<li><p>is_range: A boolean flag indicating if the <code>variable_values</code> column
+represents a summarized range rather than a discrete value.</p></li>
 </ul></div>
     <div id="author">
     <h2>Author</h2>
@@ -145,25 +146,25 @@ a summarized range rather than a discrete value.</p></li>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ℹ 24 more rows</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ℹ 2 more variables: n_size &lt;int&gt;, is_range &lt;lgl&gt;</span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># example shortening question labels to 25 characters</span></span></span>
+<span class="r-in"><span><span class="co"># example shortening variable labels to 25 characters</span></span></span>
 <span class="r-in"><span><span class="fu">generate_dict</span><span class="op">(</span>data <span class="op">=</span> <span class="va">gss</span>, label_width <span class="op">=</span> <span class="fl">25</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 772 × 7</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    variable_name variable_label       variable_type variable_values value_labels</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>         <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>         <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>           <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>       </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 1</span> id            Respondent ID number numeric       1 - 4150        <span style="color: #BB0000;">NA</span>          </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 2</span> id            Respondent ID number numeric       <span style="color: #BB0000;">NA</span>              system miss…</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 3</span> year          GSS year for this r… labelled      2022            2022        </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 4</span> year          GSS year for this r… labelled      -100            iap         </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 5</span> year          GSS year for this r… labelled      -99             no answer   </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 6</span> year          GSS year for this r… labelled      -98             don't know  </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 7</span> year          GSS year for this r… labelled      -97             skipped on …</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 8</span> year          GSS year for this r… labelled      -96             see codebook</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 9</span> year          GSS year for this r… labelled      -95             uncodeable  </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">10</span> year          GSS year for this r… labelled      -94             not imputab…</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 3</span> year          GSS year for this r… labelled      -100            iap         </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 4</span> year          GSS year for this r… labelled      -99             no answer   </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 5</span> year          GSS year for this r… labelled      -98             don't know  </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 6</span> year          GSS year for this r… labelled      -97             skipped on …</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 7</span> year          GSS year for this r… labelled      -96             see codebook</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 8</span> year          GSS year for this r… labelled      -95             uncodeable  </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 9</span> year          GSS year for this r… labelled      -94             not imputab…</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">10</span> year          GSS year for this r… labelled      -90             refused     </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ℹ 762 more rows</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ℹ 2 more variables: n_size &lt;int&gt;, is_range &lt;lgl&gt;</span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># example selecting a subset of variables from a data frame</span></span></span>
+<span class="r-in"><span><span class="co"># example selecting a subset of variables from a tibble</span></span></span>
 <span class="r-in"><span><span class="fu">generate_dict</span><span class="op">(</span></span></span>
 <span class="r-in"><span>  data <span class="op">=</span> <span class="va">gss</span>,</span></span>
 <span class="r-in"><span>  columns <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"year"</span>, <span class="st">"age"</span>, <span class="st">"sexnow1"</span>, <span class="st">"hispanic"</span>, <span class="st">"race"</span>, <span class="st">"marital"</span><span class="op">)</span></span></span>
@@ -171,16 +172,16 @@ a summarized range rather than a discrete value.</p></li>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 168 × 7</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    variable_name variable_label       variable_type variable_values value_labels</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>         <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>         <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>           <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>       </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 1</span> year          GSS year for this r… labelled      2022            2022        </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 2</span> year          GSS year for this r… labelled      -100            iap         </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 3</span> year          GSS year for this r… labelled      -99             no answer   </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 4</span> year          GSS year for this r… labelled      -98             don't know  </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 5</span> year          GSS year for this r… labelled      -97             skipped on …</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 6</span> year          GSS year for this r… labelled      -96             see codebook</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 7</span> year          GSS year for this r… labelled      -95             uncodeable  </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 8</span> year          GSS year for this r… labelled      -94             not imputab…</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 9</span> year          GSS year for this r… labelled      -90             refused     </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">10</span> year          GSS year for this r… labelled      -80             not availab…</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 1</span> year          GSS year for this r… labelled      -100            iap         </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 2</span> year          GSS year for this r… labelled      -99             no answer   </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 3</span> year          GSS year for this r… labelled      -98             don't know  </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 4</span> year          GSS year for this r… labelled      -97             skipped on …</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 5</span> year          GSS year for this r… labelled      -96             see codebook</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 6</span> year          GSS year for this r… labelled      -95             uncodeable  </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 7</span> year          GSS year for this r… labelled      -94             not imputab…</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 8</span> year          GSS year for this r… labelled      -90             refused     </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 9</span> year          GSS year for this r… labelled      -80             not availab…</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">10</span> year          GSS year for this r… labelled      -70             not availab…</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ℹ 158 more rows</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ℹ 2 more variables: n_size &lt;int&gt;, is_range &lt;lgl&gt;</span></span>
 <span class="r-in"><span></span></span>
