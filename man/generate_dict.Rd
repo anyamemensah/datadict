@@ -33,15 +33,16 @@ readability. Defaults to \code{100} characters.}
 \value{
 A tibble with the following structural metadata:
 \itemize{
-\item variable_name: The column/variable name as it appears in the data source
+\item variable_name: The column/variable name as it appears in the data source.
 \item variable_label: The descriptive variable label or the default placeholder.
 \item variable_type: The type of data contained within the column/variable (e.g.,
-numeric, character, factor). Data type is derived using R's \code{class()} function.
+numeric, character, labelled, factor). Data type is derived using R's \code{class()}
+function.
 \item variable_values: Individual data values or range of data values.
 \item value_labels: The descriptive labels assigned to specific data values.
 \item n_size: The frequency count for each value/label pair.
-\item is_range: A boolean flag indicating if the \code{variable_values} column represents
-a summarized range rather than a discrete value.
+\item is_range: A boolean flag indicating if the \code{variable_values} column
+represents a summarized range rather than a discrete value.
 }
 }
 \description{
@@ -53,10 +54,10 @@ values or value labels.
 \examples{
 generate_dict(data = nlsy)
 
-# example shortening question labels to 25 characters
+# example shortening variable labels to 25 characters
 generate_dict(data = gss, label_width = 25)
 
-# example selecting a subset of variables from a data frame
+# example selecting a subset of variables from a tibble
 generate_dict(
   data = gss,
   columns = c("year", "age", "sexnow1", "hispanic", "race", "marital")

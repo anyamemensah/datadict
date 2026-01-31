@@ -24,7 +24,7 @@
     Condition
       Error in `generate_dict()`:
       ! Invalid `n_max` argument.
-      x `n_max` must be a single number.
+      x `n_max` must be a single number of length one.
       i Received <character> of length 1.
 
 ---
@@ -34,8 +34,9 @@
         label_width = NULL)
     Condition
       Error in `generate_dict()`:
-      ! Invalid `label_fallback` argument
-      i `label_fallback` must be a character vector of length one.
+      ! Invalid `label_fallback` argument.
+      x `label_fallback` must be a character vector of length one.
+      i Received <numeric> of length 1.
 
 ---
 
@@ -45,7 +46,7 @@
     Condition
       Error in `generate_dict()`:
       ! Invalid `label_width` argument.
-      x `label_width` must be a single number.
+      x `label_width` must be a single number of length one.
       i Received <NULL> of length 0.
 
 # Failure: All empty columns and columns not found

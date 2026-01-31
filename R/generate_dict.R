@@ -19,25 +19,28 @@
 #' readability. Defaults to `100` characters.
 #'
 #' @returns A tibble with the following structural metadata:
-#' * variable_name: The column/variable name as it appears in the data source
-#' * variable_label: The descriptive variable label or the default placeholder.
-#' * variable_type: The type of data contained within the column/variable (e.g., 
-#' numeric, character, factor). Data type is derived using R's `class()` function.
-#' * variable_values: Individual data values or range of data values.
-#' * value_labels: The descriptive labels assigned to specific data values.
-#' * n_size: The frequency count for each value/label pair.
-#' * is_range: A boolean flag indicating if the `variable_values` column represents 
-#' a summarized range rather than a discrete value.
+#'\itemize{
+#' \item variable_name: The column/variable name as it appears in the data source.
+#' \item variable_label: The descriptive variable label or the default placeholder.
+#' \item variable_type: The type of data contained within the column/variable (e.g., 
+#' numeric, character, labelled, factor). Data type is derived using R's `class()` 
+#' function.
+#' \item variable_values: Individual data values or range of data values.
+#' \item value_labels: The descriptive labels assigned to specific data values.
+#' \item n_size: The frequency count for each value/label pair.
+#' \item is_range: A boolean flag indicating if the `variable_values` column 
+#' represents a summarized range rather than a discrete value.
+#'}
 #'
 #' @author Ama Nyame-Mensah
 #'
 #' @examples
 #' generate_dict(data = nlsy)
 #'
-#' # example shortening question labels to 25 characters
+#' # example shortening variable labels to 25 characters
 #' generate_dict(data = gss, label_width = 25)
 #'
-#' # example selecting a subset of variables from a data frame
+#' # example selecting a subset of variables from a tibble
 #' generate_dict(
 #'   data = gss,
 #'   columns = c("year", "age", "sexnow1", "hispanic", "race", "marital")
@@ -60,7 +63,7 @@ generate_dict <- function(data,
     label_width = label_width
   )
   
-  checks <- generate_dict_checks(args)
+  checks <- check_gen_dict_args(args)
   check_columns <- checks$columns
   check_empty_columns <- checks$empty_columns
   check_n_max <- checks$n_max
@@ -70,20 +73,21 @@ generate_dict <- function(data,
   dt_sub <- checks$dt[, ..check_columns]
   dt_sub_backup <- checks$dt[, ..check_columns]
   
-  # Extract three types of metadata: variable labels, variable 
-  # types, and value labels
-  meta_list <- lapply(dt_sub[, ..check_columns], function(x) {
-    list(
-      label = process_var_label(
-        attr(x, "label", exact = TRUE),
-        check_label_width,
-        check_label_fallback
-      ),
-      type = get_var_type(x),
-      variable_values = as.vector(unname(attr(x, "labels", exact = TRUE))),
-      value_labels = names(attr(x, "labels", exact = TRUE))
-    )
-  })
+  # Extract variable metadata: variable labels, variable 
+  # types, variable values, and value labels
+  meta_list <- 
+    lapply(dt_sub[, ..check_columns], function(x) {
+      list(
+        label = process_var_label(
+          attr(x, "label", exact = TRUE),
+          check_label_width,
+          check_label_fallback
+        ),
+        type = get_var_type(x),
+        variable_values = as.vector(unname(attr(x, "labels", exact = TRUE))),
+        value_labels = names(attr(x, "labels", exact = TRUE))
+      )
+    })
   
   # Coerce 'haven_labelled' columns to atomic vectors
   for (j in check_columns) {
@@ -102,12 +106,14 @@ generate_dict <- function(data,
       variable.name = "var"
     )
   )
+  
+  # Create key 
   data.table::setkeyv(long_dt, c("var", "val"))
   
-  # Calculate frequencies, including system-missing values
+  # Calculate frequencies
   stats_dt <- long_dt[, .(n_size = .N), by = .(var, val)]
   
-  # Split stats_dt into a list keyed by variable name
+  # Split stats_dt into a list by variable name
   stats_by_var <- split(stats_dt, by = "var")
   
   # Assemble dictionary by iterating over the metadata list
@@ -145,7 +151,7 @@ generate_dict <- function(data,
       r_vals <- range(as.numeric(valid_stats$val), na.rm = TRUE)
       fmt <- if (all(r_vals %% 1 == 0)) "%.0f - %.0f" else "%.2f - %.2f"
       
-      # Construct main dictionary for non-missing entries
+      # Create main dictionary for non-missing entries
       main_rows <- data.table::data.table(
         variable_name = cn,
         variable_label = m$label,
@@ -158,30 +164,34 @@ generate_dict <- function(data,
       # If column data are not numeric
     } else {
       # Extract possible value/label pairs from metadata
-      possible_dt <- if (!is.null(m$variable_values)) {
-        data.table::data.table(
-          val = as.character(m$variable_values),
-          value_labels = m$value_labels
-        )
-      } else {
-        data.table::data.table(val = character(), value_labels = character())
-      }
+      possible_dt <- 
+        if (!is.null(m$variable_values)) {
+          data.table::data.table(
+            val = as.character(m$variable_values),
+            value_labels = m$value_labels
+          )
+        } else {
+          data.table::data.table(val = character(), value_labels = character())
+        }
       
       # Extract actual values from data
       observed_dt <- valid_stats[, .(val = as.character(val), n_size)]
       
       # Create main dictionary for non-missing entries by merging
-      # possible_dt / actual_dt by vals
-      main_rows <- data.table::merge.data.table(
-        observed_dt, 
-        possible_dt,
-        by = "val", 
-        all = TRUE,
-        sort = FALSE
-      )
+      # observed_dt / possible_dt by vals
+      main_rows <- 
+        data.table::merge.data.table( 
+          possible_dt,
+          observed_dt,
+          by = "val", 
+          all = TRUE,
+          sort = FALSE
+        )
       
-      # Sort for logical ordering
-      # Order row(s) by values/labels depending on data type
+      # Create a sort key based on the variable type:
+      # factors: use the variable's defined level order
+      # labelled: use the label order defined in the metadata
+      # all others: sort numerically where possible
       if (m$type == "factor") {
         lvls <- levels(dt_sub_backup[[cn]])
         main_rows[, sort_key := match(val, lvls)]
@@ -193,6 +203,7 @@ generate_dict <- function(data,
       } else {
         main_rows[, sort_key := suppressWarnings(as.numeric(val))]
       }
+      # Sort and remove temporary key
       data.table::setorder(main_rows, sort_key, val, na.last = TRUE)
       main_rows[, sort_key := NULL]
       
@@ -208,8 +219,8 @@ generate_dict <- function(data,
       data.table::setnafill(main_rows, fill = 0, cols = "n_size")
     }
     
-    # Merge main dictionary with missing dictionary (row)
-    return(rbind(main_rows, missing_row, fill = TRUE))
+    # Combine min_rows, missing_row into a list
+    return(list(main_rows, missing_row))
   })
   
   # If any empty columns were excluded, alert.
@@ -223,10 +234,11 @@ generate_dict <- function(data,
     )
   }
   
-  final_dict = data.table::as.data.table(data.table::rbindlist(final_list, use.names=TRUE, fill = TRUE))
-  final_dict = final_dict[, ..dict_columns]
+  # Flatten final_list into a table; retain select columns
+  final_dict <- data.table::rbindlist(unlist(final_list, recursive = FALSE),
+                                      use.names = TRUE,
+                                      fill = TRUE)[, ..dict_columns]
   
   # Return full data dictionary as tibble
   return(tibble::as_tibble(final_dict))
 }
-
