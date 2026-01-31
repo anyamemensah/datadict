@@ -6,13 +6,15 @@
 
 ## datadict <a href='https://github.com/anyamemensah/datadict'></a>
 
-**datadict** is an R package that provides a clean, consistent summary
-of a data frame or tibble’s structure. Through its core function,
-`generate_dict()`, the package automates the extraction of variable
-metadata, including names, labels, data types, and distributions (such
-as unique values, value labels, and numeric ranges), producing a
-standardized reference that simplifies data exploration and
-documentation.
+**datadict** provides a focused toolset for creating and managing data
+dictionaries. It allows users to:
+
+- Document datasets by automatically extracting variable names, labels,
+  and distributions.
+- Restructure complex metadata, transforming delimited entries into
+  tidy, row-per-value formats.
+- Validate the integrity of dictionary mappings to ensure consistency
+  for downstream analysis.
 
 ## Installation
 
