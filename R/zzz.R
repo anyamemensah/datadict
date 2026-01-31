@@ -4,6 +4,8 @@
 
 
 utils::globalVariables(c(
+  ".BY",
+  "N",
   ".SD",
   ".N",
   ".",
