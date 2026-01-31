@@ -24,7 +24,7 @@
     Condition
       Error in `generate_dict()`:
       ! Invalid `n_max` argument.
-      x `n_max` must be a single number of length one.
+      x `n_max` must be a number of length one.
       i Received <character> of length 1.
 
 ---
@@ -46,7 +46,7 @@
     Condition
       Error in `generate_dict()`:
       ! Invalid `label_width` argument.
-      x `label_width` must be a single number of length one.
+      x `label_width` must be a number of length one.
       i Received <NULL> of length 0.
 
 # Failure: All empty columns and columns not found
