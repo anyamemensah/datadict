@@ -6,7 +6,7 @@
 \alias{datadict-package}
 \title{datadict: Generate a Data Dictionary}
 \description{
-Provides a clean, consistent summary of a data frame or tibble's structure. Through its core function, generate_dict(), the package automates the extraction of variable metadata, including names, labels, data types, and distributions (such as unique values, value labels, and numeric ranges), producing a standardized reference that simplifies data exploration and documentation.
+A focused toolset for creating and managing data dictionaries. Allows users to document datasets by extracting variable labels and distributions, restructure complex metadata by expanding delimited entries into tidy formats, and verify the integrity of dictionary mappings.
 }
 \author{
 \strong{Maintainer}: Ama Nyame-Mensah \email{ama@anyamemensah.com}
