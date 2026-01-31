@@ -31,8 +31,17 @@ reference:
   - title: Generating a data dictionary
     contents:
       - generate_dict
+  - title: Validating a data dictionary
+    contents:
+      - validate_dict
+  - title: Expanding metadata stored in delimited strings
+    contents:
+      - expand_delim_dict
   - title: Datasets
     contents:
       - gss
       - nlsy
       - nursing_work
+      - grad_app
+      - grad_app_dict
+      - grad_app_dict_delim
