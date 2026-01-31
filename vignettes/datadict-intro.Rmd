@@ -2,7 +2,7 @@
 title: "Introduction to datadict"
 output: rmarkdown::html_vignette
 description: >
-  This document introduces you to the package's 'generate_dict()' function.
+  This document introduces you to datadict's functions, and demonstrates how you can use them with data frames.
 vignette: >
   %\VignetteIndexEntry{Introduction to datadict}
   %\VignetteEngine{knitr::rmarkdown}
@@ -18,7 +18,19 @@ knitr::opts_chunk$set(
 
 ## Overview
 
-**datadict** is an R package that provides a clean, consistent summary of a data frame or tibble's structure. Through its core function, `generate_dict()`, the package automates the extraction of variable metadata, including names, labels, data types, and distributions (such as unique values, value labels, and numeric ranges), producing a standardized reference that simplifies data exploration and documentation.
+The **datadict** package is a focused toolset for creating and managing data dictionaries. It consists of three main functions designed to help you document, restructure, and verify your metadata.
+
+1. `generate_dict()` scans your data frame or tibble to build a structured overview of its metadata. It captures variable names, labels, and data types, while also summarizing value distributions and numeric ranges into a standardized reference.
+2. `expand_delim_dict()` is built for "unpacking" data dictionaries where multiple values are crammed into a single entry. It identifies delimited strings (e.g., "1, 2, 3") and transforms them into a tidy, row-per-value format so that every unique mapping has its own dedicated row.
+3. `validate_dict()` acts as a final check for structural integrity. It ensures that your from and to values align in length and that your dictionary entries are unique, preventing errors before you use the dictionary for recoding.
+
+In short:
+
+* Use `generate_dict()` to see what you have.
+* Use `expand_delim_dict()` if your metadata is stored in delimited strings.
+* Use `validate_dict()` if you already have a data dictionary and want to ensure your from and to values align in length and that your dictionary entries are unique.
+    
+## Working with **datadict**
 
 To begin working with **datadict**, load the package:
 
@@ -26,9 +38,9 @@ To begin working with **datadict**, load the package:
 library(datadict)
 ```
 
-## Generating a data dictionary
+### Generating a data dictionary
 
-To generate a data dictionary, pass your data frame into the `data` argument of the `generate_dict()` function. This produces a tibble summarizing every column in your dataset
+To generate a data dictionary, pass your data frame or tibble to the `data` argument of the `generate_dict()` function. This produces a tibble summarizing every column in your dataset.
 
 ``` {r, gss_all_cols}
 generate_dict(data = gss)
@@ -90,4 +102,134 @@ generate_dict(data = nlsy)
 generate_dict(data = nlsy, label_fallback = "None provided")
 ```
 
+### Expanding metadata stored in delimited strings
+
+In many real-world projects, data dictionaries are manually maintained in spreadsheets where multiple category codes and labels are stored within a single cell to save space. For example, a variable's original values might be listed as `"1;2;3;4;5"` with corresponding labels stored as `"Strongly Disagree;Disagree;Neutral;Agree;Strongly Agree"`. While this format is easy for humans to read, it is difficult to use programmatically for recoding or joining. The `expand_delim_dict()` function transforms these "compressed" strings into a machine-readable format.
+
+The `expand_delim_dict()` function streamlines the splitting and validation of delimited data. It supports disparate separators for input and output values through the `from_delim` and `to_delim` arguments. During expansion, you can automatically sanitize the data by setting `remove_na` and `remove_empty` to TRUE. To maintain data integrity, the function uses `run_check` and `min_rows` to verify that each unique category in var_col meets a minimum row threshold and maintains a strict one-to-one relationship between values.
+
+Here is an example of a dictionary (`grad_app_dict_delim`) containing metadata for common variables found in graduate admissions data. The values within the `old_values` and `new_labels` columns are separated by semi-colons (`;`). Note that variables like `gre_verbal` contain long strings of delimited scores:
+
+``` {r, grad_app_delim_1}
+grad_app_dict_delim
+```
+
+We can use `expand_delim_dict()` to unpack this dictionary, expanding those compressed strings into a tidy, row-per-value format, where each value in `old_values` should have an accompanying `new_labels` value.
+
+``` {r, grad_app_delim_2}
+expand_delim_dict(
+  data = grad_app_dict_delim,
+  var_col = "column_name",
+  from_col = "old_values", 
+  to_col = "new_labels", 
+  from_delim = ";", 
+  to_delim = ";", 
+  remove_na = FALSE, 
+  remove_empty = FALSE, 
+  min_rows = 1L, 
+  run_check = TRUE
+)
+```
+
+The `expand_delim_dict()` function also includes built-in checks to ensure your metadata is parsed correctly. It primarily watches for two types of structural issues: mismatched mapping pairs and incorrect delimiter specifications.
+
+If the number of elements in your "from" column does not align with the number of elements in your "to" column for a specific variable, the function will throw an error identifying the first instance of the mismatch.
+
+In the example below, `var_2` has two "from" values (0 and 1) but only one "to" label (False), triggering a length mismatch:
+
+``` {r, grad_app_delim_3, error = TRUE}
+mis_match_lens <-
+  data.frame(
+    variable_name = c("var_1", "var_2"),
+    from_vals = c("1,2,3", "0,1"),
+    to_vals = c("Yes;No;Maybe", "False")
+  )
+
+expand_delim_dict(
+  data = mis_match_lens,
+  var_col = "variable_name",
+  from_col = "from_vals", 
+  to_col = "to_vals", 
+  from_delim = ",", 
+  to_delim = ";", 
+  remove_na = FALSE, 
+  remove_empty = FALSE, 
+  min_rows = 1L, 
+  run_check = TRUE
+)
+```
+
+The function also monitors the integrity of the splitting process. If a column fails to split (resulting in a single string) but that string contains other common separators (e.g., `,`, `;`, or `|`), the function will flag it as a suspected delimiter mismatch.
+
+This is particularly helpful for catching instances where the `from_delim` and `to_delim` arguments have been accidentally swapped:
+
+``` {r, grad_app_delim_4, error = TRUE}
+suspicious_delim <-
+  data.frame(
+    variable_name = c("var_1", "var_2"),
+    from_vals = c("1,2,3", "0,1"),
+    to_vals = c("Yes;No;Maybe", "False")
+  )
+
+expand_delim_dict(
+  data = suspicious_delim,
+  var_col = "variable_name",
+  from_col = "from_vals", 
+  to_col = "to_vals", 
+  from_delim = ";", 
+  to_delim = ",", 
+  remove_na = FALSE, 
+  remove_empty = FALSE, 
+  min_rows = 1L, 
+  run_check = TRUE
+)
+```
+
+### Validating a data dictionary
+
+Even if your dictionary is already formatted correctly, it is often useful to verify that your "from" and "to" values align. `validate_dict()` performs a structural audit to ensure that every unique variable contains a matching number of "from" and "to" values, while also confirming that each variable meets your required minimum row threshold.
+
+The dictionary in the example below successfully passes all validation checks:
+
+``` {r, grad_app_delim_5}
+dict_valid_pass <-
+  data.frame(
+    variable_name = c(rep("var_1", times = 3),
+                      rep("var_2", times = 2)),
+    from_vals = c(1,2,3,0,1),
+    to_vals = c("Yes","No","Maybe","True","False")
+  )
+
+validate_dict(
+  data = dict_valid_pass,
+  var_col = "variable_name",
+  from_col = "from_vals", 
+  to_col = "to_vals", 
+  remove_na = FALSE, 
+  remove_empty = FALSE, 
+  min_rows = 2L
+)
+```
+
+However, in the example below, the value `1` is mapped to two different labels ("Yes" and "No") for `var_1`. This creates a conflict where the number of unique `from_vals` does not match the number of unique `to_vals`. Note: `validate_dict()` identifies the error by pointing you to the **variable name(s)** where the mapping logic fails.
+
+``` {r, grad_app_delim_6, error = TRUE}
+dict_valid_fail <-
+  data.frame(
+    variable_name = c(rep("var_1", times = 3),
+                      rep("var_2", times = 2)),
+    from_vals = c(1,1,3,0,1),
+    to_vals = c("Yes","No","Maybe","True","False")
+  )
+
+validate_dict(
+  data = dict_valid_fail,
+  var_col = "variable_name",
+  from_col = "from_vals", 
+  to_col = "to_vals", 
+  remove_na = FALSE, 
+  remove_empty = FALSE, 
+  min_rows = 2L
+)
+```
 
